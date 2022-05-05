@@ -31,6 +31,6 @@ npm i
 
 Set region in `config\tests.js` before running this command:
 ```shell
-// Expected output is the result of `aws ec2 escribe-vpcs` command
+// Expected output is the result of `aws ec2 describe-vpcs` command
 node test.js
 ```
