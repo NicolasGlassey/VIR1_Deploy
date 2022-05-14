@@ -23,7 +23,8 @@
 
 ```shell
 git clone git@github.com:CyrilGoldenschue/VIR1_Deploy.git
-cd VIR1_Deploy
+git checkout develop
+cd VIR1_Deploy/src 
 npm i
 ```
 
