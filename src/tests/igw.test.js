@@ -21,6 +21,23 @@ beforeAll(() => {
     this.igw = new Igw();
 });
 
+test("Attach_NominalCase_Success", async () => {
+    //Given
+    //TODO  Utiliser le code pour créer vpc et IGW
+    // IGW 
+    // VPC
+    // client
+    let expected = await this.igw.state(this.IgwName)
+    
+    expect(expected).toEqual("detached")
+    //When
+    this.igw.attach(this.IgwName, this.vpcName)
+
+    //Then
+    let received = await this.igw.state(this.IgwName)
+    expect(received).toEqual("attached")
+})
+
 // TODO remove this example
 test('example', () => {
     // given
