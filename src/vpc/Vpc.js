@@ -7,7 +7,7 @@
 
 "use strict";
 
-const config = require('../config');
+const config = require('../_config');
 const VpcException = require("./VpcException");
 const VpcNotFoundException = require("./VpcNotFoundException");
  
