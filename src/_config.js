@@ -1,10 +1,9 @@
-var AWS = require('aws-sdk');
+const { EC2Client } = require("@aws-sdk/client-ec2");
 
 // Set your region here
-AWS.config.update({region: "eu-west-3"});
 
 const config = { 
-   client : new AWS.EC2(AWS.config.credentials.accessKeyId, AWS.config.credentials.secretAccessKey)
+   client : new EC2Client({ region: "eu-west-3" })
 }
 
 module.exports = config;
