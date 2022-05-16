@@ -8,17 +8,23 @@
 
  "use strict";
  
-const config = require('../config.js');
-const Igw = require("../igw/Igw.js");
+const config = require('../_config');
+
+//const Vpc = require("../vpc/Vpc");
+const Igw = require("../igw/Igw");
 const IgwException = require("../igw/IgwException.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 
-var igw;
+var igw, vpc, vpcName, igwName;
 
 beforeAll(() => {
     // Load credentials and set region from JSON file
     // You have to set your region here
-    this.igw = new Igw();
+    this.vpcName = "Vpc-Deploy-test";
+    this.igwName = "Igw-Deploy-test";
+
+    this.igw = new Igw(config.client);
+    //this.vpc = new Vpc();
 });
 
 test("Attach_NominalCase_Success", async () => {
@@ -27,14 +33,14 @@ test("Attach_NominalCase_Success", async () => {
     // IGW 
     // VPC
     // client
-    let expected = await this.igw.state(this.IgwName)
+    let expected = await this.igw.state(this.igwName)
     
     expect(expected).toEqual("detached")
     //When
-    this.igw.attach(this.IgwName, this.vpcName)
+    this.igw.attach(this.igwName, this.vpcName)
 
     //Then
-    let received = await this.igw.state(this.IgwName)
+    let received = await this.igw.state(this.igwName)
     expect(received).toEqual("attached")
 })
 
