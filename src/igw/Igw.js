@@ -8,7 +8,7 @@
 "use strict";
 
 const config = require('../_config');
-const { DescribeInternetGatewaysCommand } = require("@aws-sdk/client-ec2");
+const { DescribeInternetGatewaysCommand, AttachInternetGatewayCommand  } = require("@aws-sdk/client-ec2");
 
 const IgwcException = require("./IgwException");
 const IgwNotFoundException = require("./IgwNotFoundException");
@@ -29,7 +29,7 @@ module.exports = class Igw {
             throw new VpcNotExistException()
         }*/
 
-        vpc = this.#client.describeVpcs({
+        /*vpc = this.#client.describeVpcs({
             Filters: [
                 {
                     Name: "tag:Name",
@@ -38,25 +38,27 @@ module.exports = class Igw {
                     ],
                 },
             ],
-        });
-        if(this.exists(IgwName) && vpc != null){
-            let gateway = this.getGateway(IgwName)
-            if(vpc["Vpcs"][0]["State"]!="available"){
+        });*/
+        if(this.exists(IgwName)/*&& vpc != null*/){
+            let gateway = await this.getGateway(IgwName)
+            //console.log(gateway)
+            /*if(vpc["Vpcs"][0]["State"]!="available"){
                 throw new VpcAlreadyAttachedException()
-            }
-            if(gateway['InternetGateways'][0]["Attachments"][0]["State"] == "available" ){
+            }*/
+            /*if(gateway[0]["Attachments"][0]["State"] == "available" ){
                 throw new IgwAlreadyAttachedException()
-            }
-            this.#client.attachInternetGateway(
+            }*/
+            const command = new AttachInternetGatewayCommand (
                 {   
-                    InternetGatewayId: gateway['InternetGateways'][0]["InternetGatewayId"],
+                    InternetGatewayId: gateway[0]["InternetGatewayId"],
                     VpcId: "vpc-0dc6811332bf28391",//this.#vpc.VpcId(VpcName, this.#vpc),
                 }
             )
+            const response = await this.#client.send(command)
         } else {
             throw new IgwNotExistException()
         }
-        return true;
+        return "attached";
     }
 
 
@@ -66,9 +68,8 @@ module.exports = class Igw {
 
     async state(igwName){        
         let response = await this.getGateway(igwName);
-        console.log(response[0])
-        let attached = response[0]["Attachments"][0] != null
-        if(attached){
+
+        if(response[0]["Attachments"][0] != null){
             return "attached"
         }
         return "detached"
@@ -88,7 +89,6 @@ module.exports = class Igw {
 
         const command = new DescribeInternetGatewaysCommand(params);
         const response = await this.#client.send(command);
-
         return response["InternetGateways"]
     }
 
