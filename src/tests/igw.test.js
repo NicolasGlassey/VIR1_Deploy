@@ -71,6 +71,34 @@ test("Attach_IgwAlreadyAttach_Failure", async () => {
     expect(expected).toEqual("attached")
 })
 
+test("Detach_NominalCase_Success", async () => {
+    //Given
+    //TODO  Utiliser le code pour créer vpc et IGW
+    // IGW 
+    // VPC
+    // client
+    let expected = await this.igw.state(this.igwName)
+    
+    expect(expected).toEqual("attached")
+    //When
+    let received = await this.igw.detach(this.igwName)
+
+    //Then
+    expect(received).toEqual("detached")
+})
+
+test("Detach_IgwNotAttached_Failure", async () => {
+    //Given
+    //TODO  Utiliser le code pour créer vpc et IGW
+    // IGW 
+    // VPC
+    // client
+    //When
+    let received = await this.igw.detach(this.igwName, this.vpcName)
+
+    //Then
+    expect(received).toThrow(IgwNotAttachedException)
+})
 
 // TODO remove this example
 test('example', () => {
