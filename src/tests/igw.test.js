@@ -37,11 +37,37 @@ test("Attach_NominalCase_Success", async () => {
     
     expect(expected).toEqual("detached")
     //When
-    this.igw.attach(this.igwName, this.vpcName)
+    let received = await this.igw.attach(this.igwName, this.vpcName)
 
     //Then
-    let received = await this.igw.state(this.igwName)
     expect(received).toEqual("attached")
+})
+
+test("Attach_IgwNotExist_Failure", async () => {
+    //Given
+    //TODO  Utiliser le code pour créer vpc et IGW
+    // IGW 
+    // VPC
+    // client
+    let igwNameNotExist = "Deploy-NotExist"
+    //When
+    let received = await this.igw.exists(igwNameNotExist)
+
+    //Then
+    expect(received).toEqual(false)
+})
+
+test("Attach_IgwAlreadyAttach_Failure", async () => {
+    //Given
+    //TODO  Utiliser le code pour créer vpc et IGW
+    // IGW 
+    // VPC
+    // client  
+
+    //When
+    let expected = await this.igw.state(this.igwName)
+    //Then
+    expect(expected).toEqual("attached")
 })
 
 // TODO remove this example
