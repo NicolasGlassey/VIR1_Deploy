@@ -8,7 +8,7 @@
 
  "use strict";
  
-const config = require('../_config');
+const config = require('../config');
 
 //const Vpc = require("../vpc/Vpc");
 const Igw = require("../igw/Igw");
@@ -57,6 +57,20 @@ test("Attach_IgwNotExist_Failure", async () => {
     expect(received).toEqual(false)
 })
 
+test("Attach_VpcNotExist_Failure", async () => {
+    //Given
+    //TODO  Utiliser le code pour créer vpc et IGW
+    // IGW 
+    // VPC
+    // client
+    let vpcNameNotExist = "Vpc-NotExist"
+    //When
+    let received = await this.vpc.exists(vpcNameNotExist)
+
+    //Then
+    expect(received).toEqual(false)
+})
+
 test("Attach_IgwAlreadyAttach_Failure", async () => {
     //Given
     //TODO  Utiliser le code pour créer vpc et IGW
@@ -66,6 +80,19 @@ test("Attach_IgwAlreadyAttach_Failure", async () => {
 
     //When
     let expected = await this.igw.state(this.igwName)
+    //Then
+    expect(expected).toEqual("attached")
+})
+
+test("Attach_VpcAlreadyAttach_Failure", async () => {
+    //Given
+    //TODO  Utiliser le code pour créer vpc et IGW
+    // IGW 
+    // VPC
+    // client  
+
+    //When
+    let expected = await this.vpc.state(this.vpcName)
     //Then
     expect(expected).toEqual("attached")
 })
