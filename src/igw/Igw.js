@@ -41,7 +41,6 @@ module.exports = class Igw {
                 },
             ],
         });*/
-        console.log(await this.exists(igwName))
         if(await this.exists(igwName)/*&& vpc != null*/){
             let igw = await this.find(igwName)
             //console.log(gateway)
@@ -65,15 +64,33 @@ module.exports = class Igw {
         }
     }
 
+    async detach(igwName){
+        if(await this.exists(igwName)){
+            let igw = await this.find(igwName)
+            if(await this.state(igwName) == "attached"){
+                let command = new DetachInternetGatewayCommand(
+                    {
+                        InternetGatewayId: igw["InternetGatewayId"],
+                        VpcId: igw["Attachments"][0]["VpcId"]
+                    }
+                )
+                let response = await this.#client.send(command)
+                return "detached";
+            }else{
+                throw new IgwNotAttachedException()
+            }
+        }else {
+            throw new IgwNotFoundException()
+        }
 
+    }
 
 
 
 
     async state(igwName){        
         let response = await this.find(igwName);
-
-        if(response[0]["Attachments"][0] != null){
+        if(response["Attachments"][0] != null){
             return "attached"
         }
         return "detached"
@@ -93,12 +110,12 @@ module.exports = class Igw {
 
         const command = new DescribeInternetGatewaysCommand(params);
         const response = await this.#client.send(command);
-        return response["InternetGateways"]
+        return response["InternetGateways"][0]
     }
 
     async exists(igwName){
         let igw = await this.find(igwName)
-        if(igw[0] != undefined){
+        if(igw != undefined){
             return true
         }
         return false
