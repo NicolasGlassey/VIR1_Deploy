@@ -23,7 +23,7 @@ beforeAll(() => {
     this.vpcName = "Vpc-Deploy-test";
     this.igwName = "Igw-Deploy-test";
 
-    this.igw = new Igw(config.client);
+    this.igw = new Igw();
     //this.vpc = new Vpc();
 });
 
@@ -57,20 +57,6 @@ test("Attach_IgwNotExist_Failure", async () => {
     expect(received).toEqual(false)
 })
 
-test("Attach_VpcNotExist_Failure", async () => {
-    //Given
-    //TODO  Utiliser le code pour créer vpc et IGW
-    // IGW 
-    // VPC
-    // client
-    let vpcNameNotExist = "Vpc-NotExist"
-    //When
-    let received = await this.vpc.exists(vpcNameNotExist)
-
-    //Then
-    expect(received).toEqual(false)
-})
-
 test("Attach_IgwAlreadyAttach_Failure", async () => {
     //Given
     //TODO  Utiliser le code pour créer vpc et IGW
@@ -84,18 +70,6 @@ test("Attach_IgwAlreadyAttach_Failure", async () => {
     expect(expected).toEqual("attached")
 })
 
-test("Attach_VpcAlreadyAttach_Failure", async () => {
-    //Given
-    //TODO  Utiliser le code pour créer vpc et IGW
-    // IGW 
-    // VPC
-    // client  
-
-    //When
-    let expected = await this.vpc.state(this.vpcName)
-    //Then
-    expect(expected).toEqual("attached")
-})
 
 // TODO remove this example
 test('example', () => {
