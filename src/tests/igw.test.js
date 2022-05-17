@@ -60,23 +60,23 @@ test('create_NameNotAvailable_ThrowException', () => {
     expect(() => Igw.create(name)).toThrow(IgwNameNotAvailable);
 })
 
-test('nameAvailable_NameIsNotUsed_Success', () =>{
+test('exists_NameIsNotUsed_Success', () =>{
     // given
     let name = "Igw-deploy-3";
     
     // when 
-    let result = Igw.nameAvailable(name);
+    let result = Igw.exists(name);
 
     // then
     expect(result).toEqual(true);
 })
 
-test('nameAvailable_NameAlreadyInUse_Success', () =>{
+test('exists_NameAlreadyInUse_Success', () =>{
     // given
     let name = "Igw-deploy-1";
     
     // when 
-    let result = Igw.nameAvailable(name);
+    let result = Igw.exists(name);
 
     // then
     expect(result).toEqual(false);
