@@ -34,11 +34,13 @@ beforeAll(() => {
  * @brief   Test the creation of a VPC
  */
 test("create_CreateNewVpc_Success", async () => {
-    // Create a new VPC
     //given
+    let vpcName = "VPC_TEST";
+    let cidr = "10.0.0.0/16";
     //when
-    let vpc = await vpcManager.create( "VPC_TEST", "10.0.0.1/16");
+    let vpc = await vpcManager.createVpc(vpcName, cidr);
     //then
+
 
 
 });
