@@ -12,8 +12,10 @@ const config = require('../config');
 
 //const Vpc = require("../vpc/Vpc");
 const Igw = require("../igw/Igw");
+
 const IgwException = require("../igw/IgwException.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
+const IgwNotAttachedException = require("../igw/IgwNotAttachedException")
 
 var igw, vpc, vpcName, igwName;
 
@@ -51,10 +53,9 @@ test("Attach_IgwNotExist_Failure", async () => {
     // client
     let igwNameNotExist = "Deploy-NotExist"
     //When
-    let received = await this.igw.exists(igwNameNotExist)
 
     //Then
-    expect(received).toEqual(false)
+    expect(await this.igw.attach(igwNameNotExist, this.vpcName)).toThrow(IgwNotFoundException)
 })
 
 test("Attach_IgwAlreadyAttach_Failure", async () => {

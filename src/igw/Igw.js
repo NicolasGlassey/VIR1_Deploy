@@ -7,11 +7,13 @@
 
 "use strict";
 
-const config = require('../_config');
-const { DescribeInternetGatewaysCommand, AttachInternetGatewayCommand  } = require("@aws-sdk/client-ec2");
+const config = require('../config');
+const { DescribeInternetGatewaysCommand, AttachInternetGatewayCommand, DetachInternetGatewayCommand  } = require("@aws-sdk/client-ec2");
 
 const IgwcException = require("./IgwException");
 const IgwNotFoundException = require("./IgwNotFoundException");
+const IgwNotAttachedException = require("./IgwNotAttachedException");
+const IgwAlreadyAttachedException = require("./IgwAlreadyAttachedException");
 
 
 module.exports = class Igw {
@@ -24,7 +26,7 @@ module.exports = class Igw {
 
     }
 
-    async attach(IgwName, VpcName) {
+    async attach(igwName, vpcName) {
         /*if(this.#vpc.exists(VpcName) != true){
             throw new VpcNotExistException()
         }*/
@@ -39,26 +41,28 @@ module.exports = class Igw {
                 },
             ],
         });*/
-        if(this.exists(IgwName)/*&& vpc != null*/){
-            let gateway = await this.find(IgwName)
+        console.log(await this.exists(igwName))
+        if(await this.exists(igwName)/*&& vpc != null*/){
+            let igw = await this.find(igwName)
             //console.log(gateway)
             /*if(vpc["Vpcs"][0]["State"]!="available"){
                 throw new VpcAlreadyAttachedException()
             }*/
-            /*if(gateway[0]["Attachments"][0]["State"] == "available" ){
+            if(await this.state(igwName) == "detached"){
+                const command = new AttachInternetGatewayCommand (
+                    {   
+                        InternetGatewayId: igw["InternetGatewayId"],
+                        VpcId: "vpc-0dc6811332bf28391",//this.#vpc.VpcId(VpcName, this.#vpc),
+                    }
+                )
+                const response = await this.#client.send(command)
+                return "attached";
+            }else{
                 throw new IgwAlreadyAttachedException()
-            }*/
-            const command = new AttachInternetGatewayCommand (
-                {   
-                    InternetGatewayId: gateway[0]["InternetGatewayId"],
-                    VpcId: "vpc-0dc6811332bf28391",//this.#vpc.VpcId(VpcName, this.#vpc),
-                }
-            )
-            const response = await this.#client.send(command)
+            }
         } else {
-            throw new IgwNotExistException()
+            throw new IgwNotFoundException()
         }
-        return "attached";
     }
 
 
