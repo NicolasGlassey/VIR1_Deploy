@@ -3,7 +3,7 @@
     "jest": "^28.1.0"
   },
   "dependencies": {
-    "@aws-sdk/client-ec2": "^3.90.0",
+    "@aws-sdk/client-ec2": "^3.92.0",
     "aws-sdk": "^2.1128.0",
     "uuid": "^8.3.2"
   },
