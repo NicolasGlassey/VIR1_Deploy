@@ -7,7 +7,7 @@
 
 "use strict";
 
-const config = require('../config');
+const client = require('../config').client;
 const IgwcException = require("./IgwException");
 const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNameNotAvailable = require("../igw/IgwNameNotAvailable");
@@ -54,11 +54,11 @@ module.exports = class Igw {
     }
 
     /**
-     * @brief This method checks if the name is available
+     * @brief This method checks if an Igw already exists with the given name
      * @param name:  name of the internet gateway
      * @returns true if name is available
      */
-    static nameAvailable(name){
+    static exists(name){
         throw new Error('Method not implemented.');
     }
     
