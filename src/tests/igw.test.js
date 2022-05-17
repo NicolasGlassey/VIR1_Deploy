@@ -13,32 +13,26 @@ const Igw = require("../igw/Igw.js");
 const IgwException = require("../igw/IgwException.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNameNotAvailable = require("../igw/IgwNameNotAvailable.js");
-const { findId } = require('../igw/Igw.js');
 
-
-test('constructor_NameAlreadyInUse_throwException', () => {
-    // given
-    let name = "Igw-deploy-1";
-
-    // when, then
-    expect(() => new Igw(name)).toThrow(IgwNameNotAvailable);
-})
-
-
- test('create_CreateIgw_Success', () => {
+test('createOne_CreateIgw_Success', () => {
     // given
     let name = "Igw-deploy-1";
     
     // when
-    let newIgw = Igw.create(name);
+    let newIgw = Igw.createOne(name);
     
     // then
     expect(newIgw.igwId).not.toEqual(null);
 })
 
-/**
- * @depends-on findId_GetIdOfAnExistingIgw_Success
- */
+test('createOne_NameNotAvailable_ThrowException', () => {
+    // given
+    let name = "Igw-deploy-1";
+
+    // when, then
+    expect(() => Igw.createOne(name)).toThrow(IgwNameNotAvailable);
+})
+
 test('allGetters_NominalCase_Success', () => {
     // given
     let name = "Igw-deploy-2";
@@ -52,13 +46,29 @@ test('allGetters_NominalCase_Success', () => {
 })
 
 
+test('create_CreateIgw_Success', () => {
+    // given
+    let name = "Igw-deploy-2";
+    
+    // when
+    let newIgw = new Igw(name);
+    newIgw.create();
+    
+    // then
+    expect(newIgw.igwId).not.toEqual(null);
+})
+
 test('create_NameNotAvailable_ThrowException', () => {
     // given
-    let name = "Igw-deploy-1";
+    let name = "Igw-deploy-2";
+
+    // when
+    let newIgw = new Igw(name);
 
     // when, then
-    expect(() => Igw.create(name)).toThrow(IgwNameNotAvailable);
+    expect(() => newIgw.create(name)).toThrow(IgwNameNotAvailable);
 })
+
 
 test('exists_NameIsNotUsed_Success', () =>{
     // given
@@ -149,7 +159,7 @@ test('find_getExistingIgw_success', () => {
     let anIgw = Igw.find(name);
 
     //then
-    expect(anIgw).not.toEqual(null);
+    expect(anIgw).not.toEqual(undefined);
 })
 
 test('find_getNotExistentIgw_success', () =>{
@@ -160,7 +170,7 @@ test('find_getNotExistentIgw_success', () =>{
     let anIgw = Igw.find(name);
 
     //then
-    expect(anIgw).toEqual(null);
+    expect(anIgw).toEqual(undefined);
 })
 
 /**
@@ -170,7 +180,7 @@ test('find_getNotExistentIgw_success', () =>{
  test('delete_deleteAnExistingIgw_Success', () => {
     // given
     let name = "Igw-deploy-2";
-    let anIgw = find(name);
+    let anIgw = Igw.find(name);
 
     // when
     anIgw.delete();

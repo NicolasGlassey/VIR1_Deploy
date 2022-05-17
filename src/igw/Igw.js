@@ -22,9 +22,9 @@ module.exports = class Igw {
     //endregion private attributes
 
     /**
-     * 
-     * @param name
-     * @exception IgwNameNotAvailable is thrown when name is already used
+     * Constructor 
+     * @param name : name of the internet gateway
+     * @param id : Id of an existing internet gateway
      */
     constructor(name, id = null) {  
     }
@@ -46,6 +46,16 @@ module.exports = class Igw {
     }
 
     /**
+     * @brief This method creates an igw with the given name in the constructor
+     * @param name : name of the internet gateway 
+     * @returns 
+     * @exception IgwNameNotAvailable is thrown when the name is already in use
+     */
+    create(){
+      throw new Error('Method not implemented.');
+    }  
+
+    /**
      * @brief This method deletes an internet gateway by its name
      * @exception IgwNotFoundException is thrown when attempts to delete non-existent Igw
      */
@@ -65,7 +75,7 @@ module.exports = class Igw {
     /**
      * @brief This method returns the the internet gatway object by its name
      * @param name: name of the internet gateway  to find
-     * @returns null if igw doesn't exist or Igw object
+     * @returns undefined if igw doesn't exist
      */
     static find(name){
         throw new Error('Method not implemented.');
@@ -73,20 +83,19 @@ module.exports = class Igw {
 
     /**
      * @brief This method returns the id of the internet gatway by its name
-     * @param name: name of the internet gateway  to find
+     * @param name: name of the internet gateway to find
      */
     static findId(name){
         throw new Error('Method not implemented.');
     }
 
     /**
-     * @brief This method creates an igw with the given name
-     * @param name : name of the internet gateway 
-     * @returns 
+     * @brief This method create an igw with the given name
+     * @param name : name of the internet gateway
      * @exception IgwNameNotAvailable is thrown when the name is already in use
      */
-    static create(name){
-        throw new Error('Method not implemented.');
+    static createOne(name){
+       throw new Error("Method not implemented");
     }
 
     /**
