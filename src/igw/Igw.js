@@ -16,10 +16,10 @@ const IgwNotFoundException = require("./IgwNotFoundException");
 
 module.exports = class Igw {
 
-    #client;
+    #client; 
 
-    constructor(client) {
-        this.#client = client;
+    constructor() {
+        this.#client = config.client;
         //this.#client = config.client;
 
     }
@@ -40,7 +40,7 @@ module.exports = class Igw {
             ],
         });*/
         if(this.exists(IgwName)/*&& vpc != null*/){
-            let gateway = await this.getGateway(IgwName)
+            let gateway = await this.find(IgwName)
             //console.log(gateway)
             /*if(vpc["Vpcs"][0]["State"]!="available"){
                 throw new VpcAlreadyAttachedException()
@@ -67,7 +67,7 @@ module.exports = class Igw {
 
 
     async state(igwName){        
-        let response = await this.getGateway(igwName);
+        let response = await this.find(igwName);
 
         if(response[0]["Attachments"][0] != null){
             return "attached"
@@ -75,7 +75,7 @@ module.exports = class Igw {
         return "detached"
     }
 
-    async getGateway(igwName) {
+    async find(igwName) {
         var params = {
             Filters: [
                 {
@@ -93,7 +93,7 @@ module.exports = class Igw {
     }
 
     async exists(igwName){
-        let igw = await this.getGateway(igwName)
+        let igw = await this.find(igwName)
         if(igw[0] != undefined){
             return true
         }
