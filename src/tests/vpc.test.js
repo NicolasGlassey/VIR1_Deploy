@@ -8,7 +8,7 @@
 
  "use strict";
  
-const config = require('../_config.js');
+const config = require('../config.js');
 const Vpc = require("../vpc/Vpc.js");
 const VpcException = require("../vpc/VpcException.js");
 const VpcNotFoundException = require("../vpc/VpcNotFoundException.js");
