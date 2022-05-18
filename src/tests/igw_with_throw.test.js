@@ -26,6 +26,14 @@ test('createOne_CreateIgw_Success', async () => {
     expect(newIgw.igwId).not.toEqual(null);
 })
 
+test('createOne_NameNotAvailable_ThrowException', async() => {
+    // given
+    let name = "Igw-deploy-1";
+
+    // when, then
+    expect(Igw.createOne(name)).rejects.toThrow(IgwNameNotAvailable);
+})
+
 test('find_getExistingIgw_success', async () => {
     // given
     let name = "Igw-deploy-1";
@@ -76,6 +84,16 @@ test('create_CreateIgw_Success', async() => {
     expect(newIgw.igwId).not.toEqual(null);
 })
 
+test('create_NameNotAvailable_ThrowException', async() => {
+    // given
+    let name = "Igw-deploy-2";
+
+    // when
+    let newIgw = new Igw(name);
+
+    // when, then
+    expect(newIgw.create()).rejects.toThrow(IgwNameNotAvailable);
+})
 
 test('exists_NameIsNotUsed_Success', async() =>{
     // given
@@ -136,6 +154,13 @@ test('deleteOne_DeleteAnExistingIgw_Success', async() => {
     expect(id).toEqual(null);
 })
 
+test('deleteOne_DeleteNonExistentIgw_ThrowException', async() => {
+    // given
+    let name = "Igw-deploy-10";
+
+    // when, then
+    expect(Igw.deleteOne(name)).rejects.toThrow(IgwNotFoundException);
+})
 
 test('all_getAllExistentIgw_Success', async() => {
     // given igw
@@ -167,4 +192,17 @@ test('all_getAllExistentIgw_Success', async() => {
     // then
     let sameIgw = await Igw.find(name);
     expect(sameIgw).toEqual(null);
+})
+
+/**
+ * @depends-on find_getExistingIgw_success
+ * @depends-on find_getNotExistentIgw_success
+ */
+ test('delete_deleteNonExistentIgw_ThrowException', async () => {
+    // given
+    let name = "Igw-deploy-20";
+    let anIgw = new Igw(name);
+
+    // when, then
+    expect(anIgw.delete()).rejects.toThrow(IgwNotFoundException);
 })
