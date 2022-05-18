@@ -45,66 +45,80 @@ module.exports = class Vpc {
             ]
         };
         try {
-            const data = await ec2.send(new CreateVpcCommand(params));
-            return data.Vpc;
+            if(!await this.vpcExists(vpcTagName)) {
+                throw new VpcTagNameAlreadyExistsException(vpcTagName);
+            }
+            return await ec2.send(new CreateVpcCommand(params));
         } catch (err) {
-            throw new VpcException(err);
+            if (err.code === "InvalidVpc.AlreadyExists") {
+                throw new VpcAlreadyExistsException(err.message);
+            } else if (err.code === "ExceededLimit") {
+                throw new VpcExceedLimitException(err.message);
+            } /*else if (err.code === "InvalidVpc.Name") {
+                throw new VpcTagNameAlreadyExistsException(err.message);
+            }*/
         }
     }
 
     /**
-     * @brief This method deletes an vpc
+     * @brief This method deletes a vpc
      * @param {string} vpcTagName - the name of the vpc
      * @throws VpcNotFoundException if the vpc is not found
      */
-    delete(vpcTagName) {
-        let client = config.client;
-        this.describe().then(function (data) {
-            let vpcId = data.Vpcs.filter(function (vpc) {
-                return vpc.Tags.filter(function (tag) {
-                    return tag.Key === 'Name' && tag.Value === vpcTagName;
-                }).length > 0;
-            })[0].VpcId;
-            client.deleteVpc({
-                VpcId: vpcId
-            }, function (err, data) {
-                if (err) {
-                    throw new VpcException(err);
-                } else {
-                    console.log(`Vpc ${vpcTagName} deleted`);
+    async deleteVpc(vpcTagName) {
+        const ec2 = config.client;
+        return ec2.send(new DeleteVpcCommand({
+            VpcId: await this.getVpcId(vpcTagName)}
+        ));
+    }
+
+    /**
+     * @brief This method returns the vpc id of the vpc with the given name
+     * @param {string} vpcTagName - the name of the vpc
+     */
+    async getVpcId(vpcTagName) {
+        const ec2 = config.client;
+        const params = {
+            Filters: [
+                {
+                    Name: "tag:Name",
+                    Values: [
+                        vpcTagName
+                    ]
                 }
-            });
-        }).catch(function (err) {
-            throw new VpcNotFoundException(err);
-        });
+            ]
+        };
+        const describeVpcsCommand = new DescribeVpcsCommand(params);
+        const vpc = await ec2.send(describeVpcsCommand);
+        if (vpc.Vpcs.length === 0) {
+            throw new VpcNotFoundException(`Vpc ${vpcTagName} not found`);
+        }
+        return vpc.Vpcs[0].VpcId;
     }
 
     /**
      * @brief This method check if the vpc exists
      * @param {string} vpcTagName - the name of the vpc
      */
-    exists(vpcTagName) {
-        throw new Error("Not implemented");
+    async vpcExists(vpcTagName) {
+        const ec2 = config.client;
+        const params = {
+            Filters: [
+                {
+                    Name: "tag:Name",
+                    Values: [
+                        vpcTagName
+                    ]
+                }
+            ]
+        };
+        const describeVpcsCommand = new DescribeVpcsCommand(params);
+        const vpc = await ec2.send(describeVpcsCommand);
+        console.log(vpc.Vpcs.length);
+        return vpc.Vpcs.length !== 0;
+
     }
 
-    /**
-     * @brief This method returns all the vpcs
-     * @returns {Array} - an array of vpc
-     */
-    describe() {
-        let client = config.client;
-        let vpcs = [];
-        client.describeVpcs({}, function (err, data) {
-            if (err) {
-                throw new VpcException(err);
-            } else {
-                data.Vpcs.forEach(function (vpc) {
-                    vpcs.push(vpc);
-                });
-            }
-        });
-        return vpcs;
-    }
 
 }
  
