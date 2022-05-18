@@ -30,17 +30,6 @@ module.exports = class Igw {
         /*if(this.#vpc.exists(VpcName) != true){
             throw new VpcNotExistException()
         }*/
-
-        /*vpc = this.#client.describeVpcs({
-            Filters: [
-                {
-                    Name: "tag:Name",
-                    Values: [
-                      "Deploy-test"
-                    ],
-                },
-            ],
-        });*/
         if(await this.exists(igwName)/*&& vpc != null*/){
             let igw = await this.find(igwName)
             //console.log(gateway)
@@ -90,7 +79,7 @@ module.exports = class Igw {
 
     async state(igwName){        
         let response = await this.find(igwName);
-        if(response["Attachments"][0] != null){
+        if(response["Attachments"][0] !== undefined){
             return "attached"
         }
         return "detached"
@@ -115,7 +104,7 @@ module.exports = class Igw {
 
     async exists(igwName){
         let igw = await this.find(igwName)
-        if(igw != undefined){
+        if(igw !== undefined){
             return true
         }
         return false
