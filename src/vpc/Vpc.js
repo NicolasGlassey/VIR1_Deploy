@@ -6,10 +6,13 @@
  */
 
 "use strict";
-const {CreateVpcCommand} = require("@aws-sdk/client-ec2")
+const {CreateVpcCommand, DeleteVpcCommand, DescribeVpcsCommand} = require("@aws-sdk/client-ec2")
 const config = require('../config');
 const VpcException = require("./VpcException");
 const VpcNotFoundException = require("./VpcNotFoundException");
+const VpcAlreadyExistsException = require("./VpcAlreadyExistsException");
+const VpcExceedLimitException = require("./VpcExceedLimitException");
+const VpcTagNameAlreadyExistsException = require("./VpcTagNameAlreadyExistsException");
 
 module.exports = class Vpc {
 
