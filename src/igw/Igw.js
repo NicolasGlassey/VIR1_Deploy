@@ -12,11 +12,12 @@ const { DescribeInternetGatewaysCommand, AttachInternetGatewayCommand, DetachInt
 
 const Vpc = require("../vpc/Vpc")
 
-const IgwcException = require("./IgwException");
+const IgwException = require("./IgwException");
 const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNotAttachedException = require("./IgwNotAttachedException");
 const IgwAlreadyAttachedException = require("./IgwAlreadyAttachedException");
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
+const VpcAlreadyAttachedException = require("../vpc/VpcAlreadyAttachedException")
 
 
 module.exports = class Igw {
@@ -30,14 +31,15 @@ module.exports = class Igw {
     }
 
     async attach(igwName, vpcName) {
-        if(await this.#vpc.vpcExists(vpcName)) {
+        if(await this.#vpc.exists(vpcName)) {
             if (await this.exists(igwName)) {
                 let igw = await this.find(igwName)
-                let vpcId = await this.#vpc.getVpcId(vpcName)
+                let vpcId = await this.#vpc.findId(vpcName)
                 if (await this.#vpc.isAttached(vpcName)) {
                     throw new VpcAlreadyAttachedException()
                 }
-                if (await this.state(igwName) == "detached") {
+                
+                if (await this.state(igwName) === "detached") {
                     const command = new AttachInternetGatewayCommand(
                         {
                             InternetGatewayId: igw["InternetGatewayId"],
@@ -45,7 +47,6 @@ module.exports = class Igw {
                         }
                     )
                     const response = await this.#client.send(command)
-                    return "attached";
                 } else {
                     throw new IgwAlreadyAttachedException()
                 }
@@ -68,7 +69,6 @@ module.exports = class Igw {
                     }
                 )
                 let response = await this.#client.send(command)
-                return "detached";
             }else{
                 throw new IgwNotAttachedException()
             }
