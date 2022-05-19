@@ -72,7 +72,7 @@ test("deleteVpc_VpcExists_VpcNotFoundException", async () => {
     //given
     //when
     //then
-    expect(() => this.vpcManager.deleteVpc("VPC_TEST_NOT_FOUND")).toThrow(VpcNotFoundException);
+    expect(this.vpcManager.deleteVpc("VPC_TEST_NOT_FOUND")).rejects.toThrow(VpcNotFoundException);
 });
 
 /**
