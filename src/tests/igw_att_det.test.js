@@ -10,7 +10,7 @@
  
 const config = require('../config');
 
-//const Vpc = require("../vpc/Vpc");
+const Vpc = require("../vpc/Vpc");
 const Igw = require("../igw/Igw");
 
 const IgwException = require("../igw/IgwException.js");
@@ -18,41 +18,38 @@ const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNotAttachedException = require("../igw/IgwNotAttachedException");
 const IgwAlreadyAttachedException = require("../igw/IgwAlreadyAttachedException");
 
-var igw, vpc, vpcName, igwName;
+const VpcNotFoundException = require("../vpc/VpcNotFoundException")
 
-beforeAll(() => {
-    // Load credentials and set region from JSON file
-    // You have to set your region here
-    this.vpcName = "Vpc-Deploy-test";
+var igw, vpc, vpcName, vpcCidr, igwName;
+
+beforeAll(async () => {
     this.igwName = "Igw-Deploy-test";
 
+    this.vpcName = "Vpc-Deploy-test";
+    this.vpcCidr = "10.0.0.0/16";
+
     this.igw = new Igw();
-    //this.vpc = new Vpc();
+    this.vpc = new Vpc();
+
+    await this.vpc.create(this.vpcName, this.vpcCidr);
+    //TODO add create Igw
+
+    //this.igw.create(this.igwName);
 });
+
+
 
 test("Attach_NominalCase_Success", async () => {
     //Given
-    //TODO  Utiliser le code pour créer vpc et IGW
-    // IGW 
-    // VPC
-    // client
-
-    
     expect(await this.igw.state(this.igwName)).toEqual("detached")
     //When
-     await this.igw.attach(this.igwName, this.vpcName)
-
+    await this.igw.attach(this.igwName, this.vpcName)
     //Then
     expect(await this.igw.state(this.igwName)).toEqual("attached")
 });
 
 test("Detach_NominalCase_Success", async () => {
     //Given
-    //TODO  Utiliser le code pour créer vpc et IGW
-    // IGW 
-    // VPC
-    // client
-    
     expect(await this.igw.state(this.igwName)).toEqual("attached")
     //When
     await this.igw.detach(this.igwName)
@@ -60,11 +57,8 @@ test("Detach_NominalCase_Success", async () => {
     expect(await this.igw.state(this.igwName)).toEqual("detached")
 });
 
-test("Attach_IgwNotExist_Exception", async () => {
+test("Attach_IgwNotExist_ThrowException", async () => {
     //Given
-    // IGW
-    // VPC
-    // client
     let igwNameNotExist = "Deploy-NotExist"
     //When
     this.igw.attach(this.igwName, this.vpcName)
@@ -73,12 +67,8 @@ test("Attach_IgwNotExist_Exception", async () => {
     this.igw.detach(this.igwName)
 });
 
-test("Attach_IgwAlreadyAttach_Exception", async () => {
+test("Attach_IgwAlreadyAttach_ThrowException", async () => {
     //Given
-    //TODO  Utiliser le code pour créer vpc et IGW
-    // IGW
-    // VPC
-    // client
     this.igw.attach(this.igwName, this.vpcName)
     //When
     //Then
@@ -86,15 +76,19 @@ test("Attach_IgwAlreadyAttach_Exception", async () => {
     this.igw.detach(this.igwName)
 });
 
-test("Detach_IgwNotAttached_Exception", async () => {
+test("Attach_VpcNotFound_ThrowException", async () => {
     //Given
-    //TODO  Utiliser le code pour créer vpc et IGW
-    // IGW 
-    // VPC
-    // client
     //When
-   expect(this.igw.detach(this.igwName, this.vpcName)).rejects.toThrow(IgwNotAttachedException)
     //Then
+    expect(this.igw.attach(this.igwName, "Vpc_Not_Exist")).rejects.toThrow(VpcNotFoundException)
+});
+
+test("Detach_IgwNotAttached_ThrowException", async () => {
+    //Given
+    //When
+    //Then
+   expect(this.igw.detach(this.igwName, this.vpcName)).rejects.toThrow(IgwNotAttachedException)
+
 });
 
 // TODO remove this example
@@ -104,3 +98,17 @@ test('example', () => {
     // then
     expect(true).toEqual(true);
 });
+
+
+afterAll(async () => {
+    if(await this.vpc.exists(this.vpcName)){
+        if(await this.igw.state(this.igwName) === "attached"){
+            await this.igw.detach(this.igwName)
+        }
+        await this.vpc.delete(this.vpcName)
+        if(await this.igw.exists(this.igwName)) {
+            //TODO add delete Igw
+        }
+    }
+
+})
