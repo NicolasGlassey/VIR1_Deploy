@@ -80,14 +80,15 @@ test("deleteVpc_VpcExists_VpcNotFoundException", async () => {
  */
 test("deleteVpc_VpcCantBeDeleted_VpcNotDeletableException", async () => {
     //given
-    this.vpcManager.createVpc("VPC_TEST_NOT_DELETABLE", this.vpcCidr);
+    await this.vpcManager.createVpc("VPC_TEST_NOT_DELETABLE", this.vpcCidr);
     //when
     //then
-    expect(() => this.vpcManager.deleteVpc("VPC_TEST_NOT_DELETABLE")).toThrow(VpcNotDeletableException);
+    expect(this.vpcManager.deleteVpc("VPC_TEST_NOT_DELETABLE")).rejects.toThrow(VpcNotDeletableException);
 });
 
 afterAll(() => {
     this.vpcManager.deleteVpc("VPC_TEST_NOT_DELETABLE");
+    this.vpcManager.deleteVpc("VPC_TEST");
 })
 
 // /**
