@@ -34,7 +34,7 @@ beforeAll(() => {
  */
 test("create_CreateNewVpc_Success", async () => {
     //given
-    this.vpcManager.createVpc(this.vpcName, this.vpcCidr);
+    await this.vpcManager.createVpc(this.vpcName, this.vpcCidr);
     //when
     //then
     expect(await this.vpcManager.vpcExists(this.vpcName)).toBe(true);
