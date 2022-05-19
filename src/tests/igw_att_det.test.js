@@ -6,8 +6,8 @@
  *
  */
 
- "use strict";
- 
+"use strict";
+
 const config = require('../config');
 
 const Vpc = require("../vpc/Vpc");
@@ -19,6 +19,7 @@ const IgwNotAttachedException = require("../igw/IgwNotAttachedException");
 const IgwAlreadyAttachedException = require("../igw/IgwAlreadyAttachedException");
 
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
+const VpcAlreadyAttachedException = require("../vpc/VpcAlreadyAttachedException")
 
 var igw, vpc, vpcName, vpcCidr, igwName;
 
@@ -31,12 +32,14 @@ beforeAll(async () => {
     this.igw = new Igw();
     this.vpc = new Vpc();
 
-    await this.vpc.create(this.vpcName, this.vpcCidr);
+    //TODO create vpc if not exist
+    if(await this.vpc.exists("Igw-Deploy-test") === false){
+        await this.vpc.create(this.vpcName, this.vpcCidr);
+    }
     //TODO add create Igw
 
     //this.igw.create(this.igwName);
 });
-
 
 
 test("Attach_NominalCase_Success", async () => {
@@ -83,30 +86,31 @@ test("Attach_VpcNotFound_ThrowException", async () => {
     expect(this.igw.attach(this.igwName, "Vpc_Not_Exist")).rejects.toThrow(VpcNotFoundException)
 });
 
+
+test("Attach_VpcAlreadyAttached_ThrowException", async () => {
+    //Given
+    this.igw.attach(this.igwName, this.vpcName)
+    //When
+    //Then
+    expect(this.igw.attach(this.igwName, this.vpcName)).rejects.toThrow(VpcAlreadyAttachedException)
+    this.igw.detach(this.igwName)
+});
+
 test("Detach_IgwNotAttached_ThrowException", async () => {
     //Given
     //When
     //Then
-   expect(this.igw.detach(this.igwName, this.vpcName)).rejects.toThrow(IgwNotAttachedException)
+    expect(this.igw.detach(this.igwName, this.vpcName)).rejects.toThrow(IgwNotAttachedException)
 
 });
-
-// TODO remove this example
-test('example', () => {
-    // given
-    // when
-    // then
-    expect(true).toEqual(true);
-});
-
 
 afterAll(async () => {
-    if(await this.vpc.exists(this.vpcName)){
-        if(await this.igw.state(this.igwName) === "attached"){
+    if (await this.vpc.exists(this.vpcName)) {
+        if (await this.igw.state(this.igwName) === "attached") {
             await this.igw.detach(this.igwName)
         }
         await this.vpc.delete(this.vpcName)
-        if(await this.igw.exists(this.igwName)) {
+        if (await this.igw.exists(this.igwName)) {
             //TODO add delete Igw
         }
     }
