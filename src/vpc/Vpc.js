@@ -45,18 +45,12 @@ module.exports = class Vpc {
             ]
         };
         try {
-            if(!await this.vpcExists(vpcTagName)) {
-                throw new VpcTagNameAlreadyExistsException(vpcTagName);
+            if(await this.vpcExists(vpcTagName)) {
+                throw new VpcTagNameAlreadyExistsException();
             }
             return await ec2.send(new CreateVpcCommand(params));
         } catch (err) {
-            if (err.code === "InvalidVpc.AlreadyExists") {
-                throw new VpcAlreadyExistsException(err.message);
-            } else if (err.code === "ExceededLimit") {
-                throw new VpcExceedLimitException(err.message);
-            } /*else if (err.code === "InvalidVpc.Name") {
-                throw new VpcTagNameAlreadyExistsException(err.message);
-            }*/
+
         }
     }
 
@@ -67,6 +61,9 @@ module.exports = class Vpc {
      */
     async deleteVpc(vpcTagName) {
         const ec2 = config.client;
+        if(await this.vpcExists(vpcTagName) == false) {
+            throw new VpcNotFoundException();
+        }
         return ec2.send(new DeleteVpcCommand({
             VpcId: await this.getVpcId(vpcTagName)}
         ));
