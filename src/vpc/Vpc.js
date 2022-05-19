@@ -23,7 +23,6 @@ module.exports = class Vpc {
      * @brief This method creates an vpc in aws asynchronously
      * @param {string} vpcTagName - the name of the vpc
      * @param {string} vpcCidrBlock - the cidr block of the vpc
-     *
      */
     async createVpc(vpcTagName, vpcCidrBlock) {
         const ec2 = config.client;
@@ -111,11 +110,7 @@ module.exports = class Vpc {
         };
         const describeVpcsCommand = new DescribeVpcsCommand(params);
         const vpc = await ec2.send(describeVpcsCommand);
-        console.log(vpc.Vpcs.length);
         return vpc.Vpcs.length !== 0;
-
     }
-
-
 }
  
