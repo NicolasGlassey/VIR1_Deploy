@@ -43,16 +43,6 @@ test("create_CreateNewVpc_Success", async () => {
 });
 //Todo: test the VPC being attached to a subnet
 
-/**
- * @brief Test if the vpc got the same name
- */
-test("createVpc_VpcName_VpcAlreadyExistsException", async () => {
-    //given
-    let vpcName = "VPC_TEST";
-    //when
-    //then
-    expect(this.vpcManager.createVpc(this.vpcName, this.vpcCidr).rejects.toThrow(VpcTagNameAlreadyExistsException));
-});
 
 /**
  * @brief Test if a vpc can be deleted
@@ -60,9 +50,20 @@ test("createVpc_VpcName_VpcAlreadyExistsException", async () => {
 test("deleteVpc_DeleteVpc_Success", async () => {
     //given
     //when
-    this.vpcManager.deleteVpc(this.vpcName);
+    await this.vpcManager.deleteVpc(this.vpcName);
     //then
     expect(await this.vpcManager.vpcExists(this.vpcName)).toBe(false);
+});
+
+/**
+ * @brief Test if the vpc got the same name
+ */
+test("createVpc_VpcName_VpcAlreadyExistsException", async () => {
+    //given
+    await this.vpcManager.createVpc(this.vpcName, this.vpcCidr)
+    //when
+    //then
+     expect(this.vpcManager.createVpc(this.vpcName, this.vpcCidr)).rejects.toThrow(VpcTagNameAlreadyExistsException);
 });
 
 /**
