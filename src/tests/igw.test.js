@@ -10,147 +10,100 @@
 
 const config = require('../config.js');
 const Igw = require("../igw/Igw.js");
-const IgwException = require("../igw/IgwException.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNameNotAvailable = require("../igw/IgwNameNotAvailable.js");
 
-
-test('createOne_CreateIgw_Success', async () => {
-    // given
-    let name = "Igw-deploy-1";
-
-    // when
-    let newIgw = await Igw.createOne(name);
-
-    // then
-    expect(newIgw.igwId).not.toEqual(null);
-})
-
-test('find_getExistingIgw_success', async () => {
-    // given
-    let name = "Igw-deploy-1";
-
-    // when
-    let igw = await Igw.find(name);
-
-    //then
-    expect(igw.igwId).not.toEqual(null);
-})
-
-test('find_getNotExistentIgw_success',  async () => {
-    // given
-    let name = "Igw-deploy-2";
-
-    // when
-    let anIgw = await Igw.find(name);
-
-    //then
-    expect(anIgw).toEqual(null);
-})
-
-/**
- * @depends-on find_getExistingIgw_success 
- * @depends-on find_getNotExistentIgw_success
- */
-test('allGetters_NominalCase_Success', async() => {
-    // given
-    let name = "Igw-deploy-1";
-
-    // when
-    let igw = await Igw.find(name);
-
-    // then
-    expect(igw.name).toEqual(name);
-    expect(igw.igwId).not.toEqual(null);
-})
-
 test('create_CreateIgw_Success', async() => {
     // given
-    let name = "Igw-deploy-2";
+    let name = "Igw-test-deploy-1";
 
     // when
-    let newIgw = new Igw(name);
-    await newIgw.create();
+    let igw = new Igw(config.client);
+    let id = await igw.create(name);
 
     // then
-    expect(newIgw.igwId).not.toEqual(null);
+    expect(id).not.toEqual(null);
 })
 
+test('create_NameNotAvailable_ThrowException', async () => {
+    // given
+    let name = "Igw-test-deploy-1";
+    let igw = new Igw(config.client);
+
+    // when, then
+    await expect(igw.create(name)).rejects.toThrow(IgwNameNotAvailable);
+})
+
+test('findId_GetIdOfAnExistingIgw_Success', async () =>{
+    // given
+    let name = "Igw-test-deploy-1";
+
+    // then
+    let igw = new Igw(config.client);
+    let id = await igw.findId(name);
+
+    // when
+    expect(id).not.toEqual(null);
+})
+
+test('findId_GetIdOfNonExistentIgw_Success', async() =>{
+    // given
+    let name = "Igw-test-deploy-100";
+
+    // when
+    let igw = new Igw(config.client);
+    let id = await igw.findId(name);
+
+    // then
+    expect(id).toEqual(null);
+})
 
 test('exists_NameIsNotUsed_Success', async() =>{
     // given
-    let name = "Igw-deploy-20";
+    let name = "Igw-deploy-200";
 
     // when
-    let result = await Igw.exists(name);
-
+    let igw = new Igw(config.client);
+    let result = await igw.exists(name);
+    
     // then
     expect(result).toEqual(false);
 })
 
 test('exists_NameAlreadyInUse_Success', async() =>{
     // given
-    let name = "Igw-deploy-2";
+    let name = "Igw-test-deploy-1";
 
     // when
-    let result = await Igw.exists(name);
+    let igw = new Igw(config.client);
+    let result = await igw.exists(name);
 
     // then
     expect(result).toEqual(true);
 })
 
-test('findId_GetIdOfAnExistingIgw_Success', async () =>{
-    // given
-    let name = "Igw-deploy-1";
+test('all_GetListOfAllIgw_Success', async() => {
+    // given 
+    let igw = new Igw(config.client);
+    
+    // when
+    let list = await igw.all();
 
     // then
-    let result = await Igw.findId(name);
-
-    // when
-    expect(result).not.toEqual(null);
-})
-
-test('findId_GetIdOfNonExistentIgw_Success', async() =>{
-    // given
-    let name = "Igw-deploy-3";
-
-    // when
-    let result = await Igw.findId(name);
-
-    // then
-    expect(result).toEqual(null);
-})
-
-/**
- * depdends-on findId_GetIdOfAnExistingIgw_Success
- */
-test('deleteOne_DeleteAnExistingIgw_Success', async() => {
-    // given
-    let name = "Igw-deploy-1";
-
-    // when
-    await Igw.deleteOne(name);
-
-    // then
-    let id = await Igw.findId(name);
-    expect(id).toEqual(null);
-})
-
-
-test('all_getAllExistentIgw_Success', async() => {
-    // given igw
-    // when
-    let list = await Igw.all();
     expect(list.length).not.toEqual(0);
 })
 
-// Requires that no Igw exists
-// test('all_NoExistingIgw_Success', async() => {
-//    // given igw
-//    // when
-//    let list = await Igw.all();
+// Requires to delete all Igw before run this test
+//test('all_NoIgwExists_Success', async() => {
+    // given 
+//    let igw = new Igw(config.client);
+    
+    // when
+//    let list = await igw.all();
+
+    // then
 //    expect(list.length).toEqual(0);
-// })
+//})
 
 /**
  * @depends-on find_getExistingIgw_success
@@ -158,13 +111,26 @@ test('all_getAllExistentIgw_Success', async() => {
  */
  test('delete_deleteAnExistingIgw_Success', async () => {
     // given
-    let name = "Igw-deploy-2";
-    let anIgw = await Igw.find(name);
+    let name = "Igw-test-deploy-1";
+    let igw = new Igw(config.client);
 
     // when
-    await anIgw.delete();
+    await igw.delete(name);
 
     // then
-    let sameIgw = await Igw.find(name);
-    expect(sameIgw).toEqual(null);
+    let id = await igw.findId(name);
+    expect(id).toEqual(null);
+})
+
+/**
+ * @depends-on find_getExistingIgw_success
+ * @depends-on find_getNotExistentIgw_success
+ */
+ test('delete_deleteNonExistentIgw_ThrowException', async () => {
+    // given
+    let name = "Igw-test-deploy-100";
+    let igw = new Igw(config.client);
+
+    // when, then
+    await expect(igw.delete(name)).rejects.toThrow(IgwNotFoundException);
 })
