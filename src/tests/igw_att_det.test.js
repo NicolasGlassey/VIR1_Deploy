@@ -33,12 +33,12 @@ beforeAll(async () => {
     this.vpc = new Vpc();
 
     //TODO create vpc if not exist
-    if(await this.vpc.exists("Igw-Deploy-test") === false){
+    if(await this.vpc.exists(this.vpcName) === false){
         await this.vpc.create(this.vpcName, this.vpcCidr);
     }
-    //TODO add create Igw
-
-    //this.igw.create(this.igwName);
+    if(await this.igw.exists(this.igwName) === false){
+        await this.igw.create(this.igwName);
+    }
 });
 
 
@@ -115,7 +115,7 @@ afterAll(async () => {
         }
         await this.vpc.delete(this.vpcName)
         if (await this.igw.exists(this.igwName)) {
-            //TODO add delete Igw
+            await this.igw.delete(this.igwName)
         }
     }
 
