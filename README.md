@@ -23,14 +23,33 @@
 
 ```shell
 git clone git@github.com:CyrilGoldenschue/VIR1_Deploy.git
-cd VIR1_Deploy
+git checkout develop
+cd VIR1_Deploy/src 
 npm i
 ```
 
-### Test connection
+### Configuration file
 
-Set region in `config\tests.js` before running this command:
+Copy `_config.json` to `config.json` and set your `region`.
+```
+cd src
+cp _config.json config.json
+```
+
+### Run test
+Run all tests
+```
+npm run test
+```
+
+Run only one test
+```
+ npm run test [className.test.js]
+```
+
+### Check your connection
+
+Expected output is the result of `aws ec2 describe-vpcs` command
 ```shell
-// Expected output is the result of `aws ec2 describe-vpcs` command
-node test.js
+node checkCrendentials.js
 ```
