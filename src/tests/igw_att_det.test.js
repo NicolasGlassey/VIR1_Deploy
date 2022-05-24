@@ -8,7 +8,7 @@
 
 "use strict";
 
-const config = require('../config');
+const config = require('../config').client;
 
 const Vpc = require("../vpc/Vpc");
 const Igw = require("../igw/Igw");
@@ -29,7 +29,7 @@ beforeAll(async () => {
     this.vpcName = "Vpc-Deploy-test";
     this.vpcCidr = "10.0.0.0/16";
 
-    this.igw = new Igw();
+    this.igw = new Igw(config);
     this.vpc = new Vpc();
 
     //TODO create vpc if not exist
@@ -42,64 +42,68 @@ beforeAll(async () => {
 });
 
 
-test("Attach_NominalCase_Success", async () => {
+test("attach_NominalCase_Success", async () => {
     //Given
     expect(await this.igw.state(this.igwName)).toEqual("detached")
+
     //When
     await this.igw.attach(this.igwName, this.vpcName)
+
     //Then
     expect(await this.igw.state(this.igwName)).toEqual("attached")
 });
 
-test("Detach_NominalCase_Success", async () => {
+test("detach_NominalCase_Success", async () => {
     //Given
     expect(await this.igw.state(this.igwName)).toEqual("attached")
+
     //When
     await this.igw.detach(this.igwName)
+
     //Then
     expect(await this.igw.state(this.igwName)).toEqual("detached")
 });
 
-test("Attach_IgwNotExist_ThrowException", async () => {
+test("attach_IgwNotExist_ThrowException", async () => {
     //Given
     let igwNameNotExist = "Deploy-NotExist"
+
     //When
     this.igw.attach(this.igwName, this.vpcName)
+
     //Then
     expect(this.igw.attach(igwNameNotExist, this.vpcName)).rejects.toThrow(IgwNotFoundException)
     this.igw.detach(this.igwName)
 });
 
-test("Attach_IgwAlreadyAttach_ThrowException", async () => {
+test("attach_IgwAlreadyAttach_ThrowException", async () => {
     //Given
     this.igw.attach(this.igwName, this.vpcName)
-    //When
-    //Then
+
+    //When, Then
     expect(this.igw.attach(this.igwName, this.vpcName)).rejects.toThrow(IgwAlreadyAttachedException)
     this.igw.detach(this.igwName)
 });
 
-test("Attach_VpcNotFound_ThrowException", async () => {
-    //Given
-    //When
-    //Then
+test("attach_VpcNotFound_ThrowException", async () => {
+    //Given, When, Then
+
     expect(this.igw.attach(this.igwName, "Vpc_Not_Exist")).rejects.toThrow(VpcNotFoundException)
 });
 
 
-test("Attach_VpcAlreadyAttached_ThrowException", async () => {
+test("attach_VpcAlreadyAttached_ThrowException", async () => {
     //Given
     this.igw.attach(this.igwName, this.vpcName)
-    //When
-    //Then
+
+    //When, Then
     expect(this.igw.attach(this.igwName, this.vpcName)).rejects.toThrow(VpcAlreadyAttachedException)
     this.igw.detach(this.igwName)
 });
 
-test("Detach_IgwNotAttached_ThrowException", async () => {
-    //Given
-    //When
-    //Then
+test("detach_IgwNotAttached_ThrowException", async () => {
+    //Given, When,Then
+
     expect(this.igw.detach(this.igwName, this.vpcName)).rejects.toThrow(IgwNotAttachedException)
 
 });
