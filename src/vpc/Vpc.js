@@ -17,8 +17,10 @@ const VpcNotDeletableException = require("./VpcNotDeletableException");
 
 module.exports = class Vpc {
 
+    #client;
+
     constructor(client) {
-        this.client = client;
+        this.#client = client;
     }
 
     /**
