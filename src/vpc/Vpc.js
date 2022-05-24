@@ -13,10 +13,12 @@ const VpcNotFoundException = require("./VpcNotFoundException");
 const VpcAlreadyExistsException = require("./VpcAlreadyExistsException");
 const VpcExceedLimitException = require("./VpcExceedLimitException");
 const VpcTagNameAlreadyExistsException = require("./VpcTagNameAlreadyExistsException");
+const VpcNotDeletableException = require("./VpcNotDeletableException");
 
 module.exports = class Vpc {
 
-    constructor() {
+    constructor(client) {
+        this.client = client;
     }
 
     /**
