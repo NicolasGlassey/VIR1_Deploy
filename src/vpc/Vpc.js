@@ -113,8 +113,32 @@ module.exports = class Vpc {
             ]
         };
         const describeVpcsCommand = new DescribeVpcsCommand(params);
-        const vpc = await ec2.send(describeVpcsCommand);
+        const vpc = await this.#client.send(describeVpcsCommand);
         return vpc.Vpcs.length !== 0;
+    }
+
+    /**
+     * @brief This method check if the vpc has dependencies attached
+     * @param {string} vpcTagName - the name of the vpc
+     */
+    async isAttached(vpcTagName) {
+
+        let vpcId = await this.findId(vpcTagName)
+        const params = {
+            Filters: [
+                {
+                    Name: "attachment.vpc-id",
+                    Values: [
+                        vpcId,
+                    ],
+                },
+            ],
+        };
+
+        const command = new DescribeInternetGatewaysCommand(params);
+        const response = await this.#client.send(command);
+        let igw = response["InternetGateways"][0]
+        return igw !== undefined;
     }
 }
  
