@@ -28,10 +28,12 @@ module.exports = class Vpc {
      * @param {string} vpcTagName - the name of the vpc
      * @param {string} vpcCidrBlock - the cidr block of the vpc
      */
-    async createVpc(vpcTagName, vpcCidrBlock) {
-        const ec2 = config.client;
+    async create(name, cidr, resourcetype = "vpc") {
+        if (await this.exists(name)) {
+            throw new VpcTagNameAlreadyExistsException();
+        }
         const params = {
-            CidrBlock: vpcCidrBlock,
+            CidrBlock: cidr,
             EnableDnsHostnames: true,
             EnableDnsSupport: true,
             InstanceTenancy: "default",
@@ -41,20 +43,13 @@ module.exports = class Vpc {
                     Tags: [
                         {
                             Key: "Name",
-                            Value: vpcTagName
+                            Value: name
                         }
                     ]
                 }
             ]
         };
-        try {
-            if(await this.vpcExists(vpcTagName)) {
-                throw new VpcTagNameAlreadyExistsException();
-            }
-            return await ec2.send(new CreateVpcCommand(params));
-        } catch (err) {
-
-        }
+        return await this.#client.send(new CreateVpcCommand(params));
     }
 
     /**
@@ -62,34 +57,40 @@ module.exports = class Vpc {
      * @param {string} vpcTagName - the name of the vpc
      * @throws VpcNotFoundException if the vpc is not found
      */
-    async deleteVpc(vpcTagName) {
-        const ec2 = config.client;
-        if(await this.vpcExists(vpcTagName) == false) {
+    async delete(name) {
+        if (await this.exists(name) === false) {
             throw new VpcNotFoundException();
         }
-        return ec2.send(new DeleteVpcCommand({
-            VpcId: await this.getVpcId(vpcTagName)}
-        ));
+        try {
+            return this.#client.send(new DeleteVpcCommand({
+                    VpcId: await this.findId(name)
+                }
+            ));
+        }catch (err) {
+            if (err.code === "DependencyViolation") {
+                throw new VpcNotDeletableException();
+            }
+        }
+
     }
 
     /**
      * @brief This method returns the vpc id of the vpc with the given name
      * @param {string} vpcTagName - the name of the vpc
      */
-    async getVpcId(vpcTagName) {
-        const ec2 = config.client;
+    async findId(name) {
         const params = {
             Filters: [
                 {
                     Name: "tag:Name",
                     Values: [
-                        vpcTagName
+                        name
                     ]
                 }
             ]
         };
         const describeVpcsCommand = new DescribeVpcsCommand(params);
-        const vpc = await ec2.send(describeVpcsCommand);
+        const vpc = await this.#client.send(describeVpcsCommand);
         if (vpc.Vpcs.length === 0) {
             throw new VpcNotFoundException(`Vpc ${vpcTagName} not found`);
         }
@@ -100,8 +101,7 @@ module.exports = class Vpc {
      * @brief This method check if the vpc exists
      * @param {string} vpcTagName - the name of the vpc
      */
-    async vpcExists(vpcTagName) {
-        const ec2 = config.client;
+    async exists(vpcTagName) {
         const params = {
             Filters: [
                 {
