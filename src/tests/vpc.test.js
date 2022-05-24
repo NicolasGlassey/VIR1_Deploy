@@ -34,15 +34,13 @@ beforeAll(() => {
  */
 test("create_CreateNewVpc_Success", async () => {
     //given
-    await this.vpcManager.createVpc(this.vpcName, this.vpcCidr);
+    await this.vpcManager.create(this.vpcName, this.vpcCidr);
     //when
     //then
-    expect(await this.vpcManager.vpcExists(this.vpcName)).toBe(true);
+    expect(await this.vpcManager.exists(this.vpcName)).toBe(true);
     // expect(vpc.getName().toBe("VPC_TEST");
 
 });
-//Todo: test the VPC being attached to a subnet
-
 
 /**
  * @brief Test if a vpc can be deleted
@@ -50,9 +48,9 @@ test("create_CreateNewVpc_Success", async () => {
 test("deleteVpc_DeleteVpc_Success", async () => {
     //given
     //when
-    await this.vpcManager.deleteVpc(this.vpcName);
+    await this.vpcManager.delete(this.vpcName);
     //then
-    expect(await this.vpcManager.vpcExists(this.vpcName)).toBe(false);
+    expect(await this.vpcManager.exists(this.vpcName)).toBe(false);
 });
 
 /**
@@ -60,10 +58,10 @@ test("deleteVpc_DeleteVpc_Success", async () => {
  */
 test("createVpc_VpcName_VpcAlreadyExistsException", async () => {
     //given
-    await this.vpcManager.createVpc(this.vpcName, this.vpcCidr)
+    await this.vpcManager.create(this.vpcName, this.vpcCidr)
     //when
     //then
-     expect(this.vpcManager.createVpc(this.vpcName, this.vpcCidr)).rejects.toThrow(VpcTagNameAlreadyExistsException);
+     expect(this.vpcManager.create(this.vpcName, this.vpcCidr)).rejects.toThrow(VpcTagNameAlreadyExistsException);
 });
 
 /**
@@ -73,24 +71,15 @@ test("deleteVpc_VpcExists_VpcNotFoundException", async () => {
     //given
     //when
     //then
-    expect(this.vpcManager.deleteVpc("VPC_TEST_NOT_FOUND")).rejects.toThrow(VpcNotFoundException);
+    expect(this.vpcManager.delete("VPC_TEST_NOT_FOUND")).rejects.toThrow(VpcNotFoundException);
 });
 
-/**
- * @brief Test a vpc can't be deleted
- */
-test("deleteVpc_VpcCantBeDeleted_VpcNotDeletableException", async () => {
-    //given
-    await this.vpcManager.createVpc("VPC_TEST_NOT_DELETABLE", this.vpcCidr);
-    //when
-    //then
-    expect(this.vpcManager.deleteVpc("VPC_TEST_NOT_DELETABLE")).rejects.toThrow(VpcNotDeletableException);
-});
+// TODO : Test if a vpc throw an error after deletation if he is attached to a subnet
 
 afterAll(() => {
-    this.vpcManager.deleteVpc("VPC_TEST_NOT_DELETABLE");
-    this.vpcManager.deleteVpc("VPC_TEST");
-})
+    this.vpcManager.delete("VPC_TEST_NOT_DELETABLE");
+    this.vpcManager.delete("VPC_TEST");
+});
 
 // /**
 //  * @brief Test the vpc limit
