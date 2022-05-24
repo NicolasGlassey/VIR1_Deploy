@@ -24,7 +24,7 @@ let vpcCidr;
 beforeAll(() => {
     // Load credentials and set region from JSON file
     // You have to set your region here
-    this.vpcManager = new Vpc();
+    this.vpcManager = new Vpc(config.client);
     this.vpcName = "VPC_TEST";
     this.vpcCidr = "10.0.0.0/16";
 })
