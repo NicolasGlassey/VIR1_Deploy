@@ -7,19 +7,17 @@
  */
 
  "use strict";
-
-const config = require('../config.js');
-const Igw = require("../igw/Igw.js");
+const IgwHelper = require("../igw/IgwHelper.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwAlreadyExistsException = require("../igw/IgwAlreadyExistsException.js");
 
 //TODO NGY add Before Each function (igwName, igw)
 
-let igw = null;
+let igwHelper = null;
 let igwName = "";
 
 beforeEach(() => {
-    igw = new Igw();
+    igwHelper = new IgwHelper();
     igwName = "myIgwName";
 });
 
@@ -31,7 +29,7 @@ test('exists_NominalCase_Success', async() => {
     //Event is called directly by the assertion
 
     // then
-    expect(await igw.exists(igwName)).toEqual(true);
+    expect(await igwHelper.exists(igwName)).toEqual(true);
 })
 
 test('exists_NotFound_Success', async() => {
@@ -41,7 +39,7 @@ test('exists_NotFound_Success', async() => {
     // when
 
     // then
-    expect(await igw.exists(igwName)).toEqual(false);
+    expect(await igwHelper.exists(igwName)).toEqual(false);
 })
 
 test('create_CreateIgw_Success', async() => {
@@ -49,8 +47,7 @@ test('create_CreateIgw_Success', async() => {
     // refer to before each method
 
     // when
-    let igw = new Igw();
-    await igw.create(name);
+    await igwHelper.create(igwName);
 
     // then
     //test if exists using the igw name
@@ -61,7 +58,7 @@ test('create_IgwAlreadyExists_ThrowException', async () => {
     // refer to before each method
 
     // when
-    await expect(igw.create(name)).rejects.toThrow(IgwAlreadyExistsException);
+    await expect(igwHelper.create(igwName)).rejects.toThrow(IgwAlreadyExistsException);
 
     // then
     // Exception is thrown
@@ -72,9 +69,10 @@ test('all_GetListOfAllIgw_Success', async() => {
     // refer to before each method
 
     // when
-    let list = await igw.all();
+    let list = await igwHelper.all();
 
     // then
+    //TODO NGY - what's the purpose of the assertion ?
     expect(list.length).not.toEqual(0);
 })
 
@@ -84,14 +82,13 @@ test('all_GetListOfAllIgw_Success', async() => {
  */
  test('delete_deleteAnExistingIgw_Success', async () => {
     // given
-    let name = "Igw-test-deploy-1";
-    let igw = new Igw(config.client);
+    igwName = "Igw-test-deploy-1";
 
     // when
-    await igw.delete(name);
+    await igwHelper.delete(igwHelper);
 
     // then
-    let id = await igw.findId(name);
+    let id = await igwHelper.findId(igwHelper);
     expect(id).toEqual(null);
 })
 
@@ -101,9 +98,11 @@ test('all_GetListOfAllIgw_Success', async() => {
  */
  test('delete_deleteNonExistentIgw_ThrowException', async () => {
     // given
-    let name = "Igw-test-deploy-100";
-    let igw = new Igw(config.client);
+    igwName = "Igw-test-deploy-100";
 
-    // when, then
-    await expect(igw.delete(name)).rejects.toThrow(IgwNotFoundException);
+    // when
+    await expect(igwHelper.delete(igwName)).rejects.toThrow(IgwNotFoundException);
+
+    // then
+     // Exception is thrown
 })
