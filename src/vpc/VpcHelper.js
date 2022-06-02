@@ -6,7 +6,7 @@
  */
 
 "use strict";
-const {CreateVpcCommand, DeleteVpcCommand, DescribeVpcsCommand} = require("@aws-sdk/client-ec2")
+const {EC2Client, CreateVpcCommand, DeleteVpcCommand, DescribeVpcsCommand} = require("@aws-sdk/client-ec2")
 const config = require('../config');
 const VpcException = require("./VpcException");
 const VpcNotFoundException = require("./VpcNotFoundException");
@@ -19,8 +19,8 @@ module.exports = class VpcHelper {
 
     #client;
 
-    constructor(client) {
-        this.#client = client;
+    constructor(region) {
+        this.#client = new EC2Client({ region: region });
     }
 
     /**

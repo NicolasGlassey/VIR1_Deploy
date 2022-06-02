@@ -7,7 +7,7 @@
 
  "use strict";
 
-const { DescribeInternetGatewaysCommand, AttachInternetGatewayCommand, DetachInternetGatewayCommand, CreateInternetGatewayCommand, DeleteInternetGatewayCommand  } = require("@aws-sdk/client-ec2");
+const {EC2Client, DescribeInternetGatewaysCommand, AttachInternetGatewayCommand, DetachInternetGatewayCommand, CreateInternetGatewayCommand, DeleteInternetGatewayCommand  } = require("@aws-sdk/client-ec2");
 
 const VpcHelper = require("../vpc/VpcHelper")
 
@@ -26,9 +26,9 @@ module.exports = class IgwHelper {
     #vpcHelper;
     //endregion private attributes
 
-    constructor(client) {
-        this.#client = client;
-        this.#vpcHelper = new Vpc()
+    constructor(region) {
+      this.#client = new EC2Client({ region: region });
+      this.#vpcHelper = new Vpc()
     }
 
     async attach(igwName, vpcName) {
