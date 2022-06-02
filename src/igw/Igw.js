@@ -7,12 +7,10 @@
 
  "use strict";
 
-const config = require('../config');
 const { DescribeInternetGatewaysCommand, AttachInternetGatewayCommand, DetachInternetGatewayCommand, CreateInternetGatewayCommand, DeleteInternetGatewayCommand  } = require("@aws-sdk/client-ec2");
 
 const Vpc = require("../vpc/Vpc")
 
-const IgwException = require("./IgwException");
 const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNotAttachedException = require("./IgwNotAttachedException");
 const IgwAlreadyAttachedException = require("./IgwAlreadyAttachedException");
@@ -28,8 +26,8 @@ module.exports = class Igw {
     #vpc;
     //endregion private attributes
 
-    constructor() {
-        this.#client = config.client;
+    constructor(client) {
+        this.#client = client;
         this.#vpc = new Vpc()
     }
 
