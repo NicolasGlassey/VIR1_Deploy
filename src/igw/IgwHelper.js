@@ -9,7 +9,7 @@
 
 const { DescribeInternetGatewaysCommand, AttachInternetGatewayCommand, DetachInternetGatewayCommand, CreateInternetGatewayCommand, DeleteInternetGatewayCommand  } = require("@aws-sdk/client-ec2");
 
-const Vpc = require("../vpc/Vpc")
+const VpcHelper = require("../vpc/VpcHelper")
 
 const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNotAttachedException = require("./IgwNotAttachedException");
@@ -18,25 +18,25 @@ const VpcNotFoundException = require("../vpc/VpcNotFoundException")
 const VpcAlreadyAttachedException = require("../vpc/VpcAlreadyAttachedException")
 const IgwNameNotAvailable = require('./IgwNameNotAvailable');
 
-module.exports = class Igw {
+module.exports = class IgwHelper {
 
 
     //region private attributes
     #client; 
-    #vpc;
+    #vpcHelper;
     //endregion private attributes
 
     constructor(client) {
         this.#client = client;
-        this.#vpc = new Vpc()
+        this.#vpcHelper = new Vpc()
     }
 
     async attach(igwName, vpcName) {
-        if(await this.#vpc.exists(vpcName)) {
+        if(await this.#vpcHelper.exists(vpcName)) {
             if (await this.exists(igwName)) {
                 let igw = await this.find(igwName)
-                let vpcId = await this.#vpc.findId(vpcName)
-                if (await this.#vpc.isAttached(vpcName)) {
+                let vpcId = await this.#vpcHelper.findId(vpcName)
+                if (await this.#vpcHelper.isAttached(vpcName)) {
                     throw new VpcAlreadyAttachedException()
                 }
                 
