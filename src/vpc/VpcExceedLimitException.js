@@ -1,3 +1,3 @@
-const VpcException = require('./VpcException.js');
-module.exports = class VpcExceedLimitException extends VpcException{
+const VpcHelperException = require('./VpcHelperException.js');
+module.exports = class VpcExceedLimitException extends VpcHelperException{
 }

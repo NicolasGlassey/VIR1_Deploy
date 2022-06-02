@@ -8,7 +8,8 @@
 "use strict";
 const {EC2Client, CreateVpcCommand, DeleteVpcCommand, DescribeVpcsCommand, DescribeInternetGatewaysCommand} = require("@aws-sdk/client-ec2")
 const config = require('../config');
-const VpcException = require("./VpcException");
+
+const VpcException = require("./VpcHelperException");
 const VpcNotFoundException = require("./VpcNotFoundException");
 const VpcAlreadyExistsException = require("./VpcAlreadyExistsException");
 const VpcExceedLimitException = require("./VpcExceedLimitException");

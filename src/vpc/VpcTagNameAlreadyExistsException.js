@@ -1,3 +1,3 @@
-const VpcException = require('./VpcException.js');
-module.exports = class VpcTagNameAlreadyExistsException extends VpcException{
+const VpcHelperException = require('./VpcHelperException.js');
+module.exports = class VpcTagNameAlreadyExistsException extends VpcHelperException{
 }
