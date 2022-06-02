@@ -8,115 +8,71 @@
 
 "use strict";
 
-const config = require('../config.js');
-const Vpc = require('../vpc/Vpc.js');
-const VpcException = require("../vpc/VpcException.js");
+const VpcHelper = require('../vpc/VpcHelper.js');
 const VpcNotFoundException = require("../vpc/VpcNotFoundException.js");
-const VpcAlreadyExistsException = require("../vpc/VpcAlreadyExistsException");
-const VpcNotDeletableException = require("../vpc/VpcNotDeletableException");
 const VpcTagNameAlreadyExistsException = require("../vpc/VpcTagNameAlreadyExistsException");
 
-let vpcManager;
-let vpc;
+let vpcHelper;
 let vpcName;
 let vpcCidr;
+let region;
 
-beforeAll(() => {
-    // Load credentials and set region from JSON file
-    // You have to set your region here
-    this.vpcManager = new Vpc(config.client);
-    this.vpcName = "VPC_TEST";
-    this.vpcCidr = "10.0.0.0/16";
+beforeEach(() => {
+    region = "myregion";
+    vpcHelper = new VpcHelper(region);
+    vpcName = "VPC_TEST";
+    vpcCidr = "10.0.0.0/16";
 })
 
-/**
- * @brief   Test the creation of a VPC
- */
 test("create_CreateNewVpc_Success", async () => {
     //given
-    await this.vpcManager.create(this.vpcName, this.vpcCidr);
-    //when
-    //then
-    expect(await this.vpcManager.exists(this.vpcName)).toBe(true);
-    // expect(vpc.getName().toBe("VPC_TEST");
 
+
+    //when
+    await vpcHelper.create(vpcName, vpcCidr);
+
+    //then
+    expect(await vpcHelper.exists(vpcName)).toBe(true);
 });
 
-/**
- * @brief Test if a vpc can be deleted
- */
-test("deleteVpc_DeleteVpc_Success", async () => {
+test("delete_DeleteVpc_Success", async () => {
     //given
+    //TODO add assertion exists
+
     //when
-    await this.vpcManager.delete(this.vpcName);
+    await vpcHelper.delete(vpcName);
+
     //then
-    expect(await this.vpcManager.exists(this.vpcName)).toBe(false);
+    expect(await vpcHelper.exists(vpcName)).toBe(false);
 });
 
-/**
- * @brief Test if the vpc got the same name
- */
-test("createVpc_VpcName_VpcAlreadyExistsException", async () => {
+test("create_VpcAlreadyExists_ThrowException", async () => {
     //given
-    await this.vpcManager.create(this.vpcName, this.vpcCidr)
+    await vpcHelper.create(vpcName, vpcCidr)
+
     //when
+    await expect(vpcHelper.create(vpcName, vpcCidr)).rejects.toThrow(VpcTagNameAlreadyExistsException);
+
     //then
-     expect(this.vpcManager.create(this.vpcName, this.vpcCidr)).rejects.toThrow(VpcTagNameAlreadyExistsException);
+    //Exception is thrown
 });
 
-/**
- * @brief Test if a vpc exists with a given name
- */
-test("deleteVpc_VpcExists_VpcNotFoundException", async () => {
+test("delete_VpcNotFound_ThrowException", async () => {
     //given
+    //TODO NGY - add assert if exists == false
+
     //when
+    await expect(vpcHelper.delete("VPC_TEST_NOT_FOUND")).rejects.toThrow(VpcNotFoundException);
+
     //then
-    expect(this.vpcManager.delete("VPC_TEST_NOT_FOUND")).rejects.toThrow(VpcNotFoundException);
+    //Exception is thrown
 });
 
-// TODO : Test if a vpc throw an error after deletation if he is attached to a subnet
-
-afterAll(() => {
-    this.vpcManager.delete("VPC_TEST_NOT_DELETABLE");
-    this.vpcManager.delete("VPC_TEST");
+afterEach(() => {
+    //TODO NGY test if the vpc exists before delete attempt (avoid throwing an exception)
+    vpcHelper.delete("VPC_TEST_NOT_DELETABLE");
+    vpcHelper.delete("VPC_TEST");
 });
-
-// /**
-//  * @brief Test the vpc limit
-//  */
-// test("createVpc_VpcLimit_VpcAlreadyExistsException", async () => {
-//     //given
-//     let vpcName = "VPC_TEST";
-//     //when
-//     //then
-//     expect(this.vpcManager.createVpc(this.vpcName, this.vpcCidr).rejects.toThrow(VpcAlreadyExistsException));
-// });
-
-
-// /**
-//  * @brief   Test the creation of a VPC with a name already used
-//  */
-// test("create_CreateNewVpc_VpcAlreadyExistsException", async () => {
-//     //given
-//     let vpcName = "VPC_TEST";
-//     let vpcCidr = "10.0.0.0/16";
-//     //when
-//     //then
-//     expect(() => this.vpcManager.createVpc(vpcName, vpcCidr)).toThrow(VpcAlreadyExistsException);
- //});
-// /**
-//  * @brief Test if the vpc exists
-//  */
-// test("exists_VpcExists_Success", async () => {
-//     //given
-//     let vpcName = "VPC_TEST";
-//     //when
-//     //then
-//     if(await this.vpcManager.getVpcId(vpcName) !== undefined) {
-//         expect(true).toBe(true);
-//     }
-// });
-
 
 
 
