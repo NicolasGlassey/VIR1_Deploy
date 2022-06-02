@@ -9,11 +9,10 @@
 const {EC2Client, CreateVpcCommand, DeleteVpcCommand, DescribeVpcsCommand, DescribeInternetGatewaysCommand} = require("@aws-sdk/client-ec2")
 const config = require('../config');
 
-const VpcException = require("./VpcHelperException");
 const VpcNotFoundException = require("./VpcNotFoundException");
 const VpcAlreadyExistsException = require("./VpcAlreadyExistsException");
+//TODO ajouter la vérification de limite
 const VpcExceedLimitException = require("./VpcExceedLimitException");
-const VpcTagNameAlreadyExistsException = require("./VpcTagNameAlreadyExistsException");
 const VpcNotDeletableException = require("./VpcNotDeletableException");
 
 module.exports = class VpcHelper {
@@ -31,7 +30,7 @@ module.exports = class VpcHelper {
      */
     async create(name, cidr, resourcetype = "vpc") {
         if (await this.exists(name)) {
-            throw new VpcTagNameAlreadyExistsException();
+            throw new VpcAlreadyExistsException();
         }
         const params = {
             CidrBlock: cidr,
