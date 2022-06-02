@@ -28,7 +28,7 @@ module.exports = class IgwHelper {
 
     constructor(region) {
       this.#client = new EC2Client({ region: region });
-      this.#vpcHelper = new Vpc()
+      this.#vpcHelper = new VpcHelper("eu-west-3")
     }
 
     async attach(igwName, vpcName) {
