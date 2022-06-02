@@ -1,3 +1,3 @@
-const IgwcException = require('./IgwException.js');
-module.exports = class IgwNotAttachedException extends IgwcException{
+const IgwHelperException = require('./IgwHelperException.js');
+module.exports = class IgwNotAttachedException extends IgwHelperException{
 }
