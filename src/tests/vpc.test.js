@@ -15,11 +15,9 @@ const VpcTagNameAlreadyExistsException = require("../vpc/VpcTagNameAlreadyExists
 let vpcHelper;
 let vpcName;
 let vpcCidr;
-let region;
 
 beforeEach(() => {
-    region = "myregion";
-    vpcHelper = new VpcHelper(region);
+    vpcHelper = new VpcHelper(eu-west-3);
     vpcName = "VPC_TEST";
     vpcCidr = "10.0.0.0/16";
 })
