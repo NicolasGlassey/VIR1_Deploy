@@ -15,7 +15,7 @@ const VpcExceedLimitException = require("./VpcExceedLimitException");
 const VpcTagNameAlreadyExistsException = require("./VpcTagNameAlreadyExistsException");
 const VpcNotDeletableException = require("./VpcNotDeletableException");
 
-module.exports = class Vpc {
+module.exports = class VpcHelper {
 
     #client;
 
