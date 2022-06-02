@@ -17,7 +17,7 @@ let igwHelper = null;
 let igwName = "";
 
 beforeEach(() => {
-    igwHelper = new IgwHelper();
+    igwHelper = new IgwHelper("eu-west-3");
     igwName = "myIgwName";
 });
 
