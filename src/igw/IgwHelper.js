@@ -13,9 +13,8 @@ const VpcHelper = require("../vpc/VpcHelper")
 
 const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNotAttachedException = require("./IgwNotAttachedException");
-const IgwAlreadyAttachedException = require("./IgwAlreadyAttachedException");
+const AlreadyAttachedException = require("./AlreadyAttachedException");
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
-const VpcAlreadyAttachedException = require("../vpc/VpcAlreadyAttachedException")
 const IgwNameNotAvailable = require('./IgwNameNotAvailable');
 
 module.exports = class IgwHelper {
@@ -36,11 +35,9 @@ module.exports = class IgwHelper {
             if (await this.exists(igwName)) {
                 let igw = await this.find(igwName)
                 let vpcId = await this.#vpcHelper.findId(vpcName)
-                if (await this.#vpcHelper.isAttached(vpcName)) {
-                    throw new VpcAlreadyAttachedException()
-                }
-                
-                if (await this.state(igwName) === "detached") {
+                //TODO à voir en review
+                if (await this.state(igwName) === "detached" || !(await this.#vpcHelper.isAttached(vpcName))) {
+
                     const command = new AttachInternetGatewayCommand(
                         {
                             InternetGatewayId: igw["InternetGatewayId"],
@@ -49,7 +46,7 @@ module.exports = class IgwHelper {
                     )
                     const response = await this.#client.send(command)
                 } else {
-                    throw new IgwAlreadyAttachedException()
+                    throw new AlreadyAttachedException()
                 }
             } else {
                 throw new IgwNotFoundException()
