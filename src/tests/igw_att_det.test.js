@@ -23,7 +23,8 @@ let igwHelper, vpcHelper, vpcName, vpcCidr, igwName;
 beforeAll(async () => {
     vpcName = "Vpc-Deploy-test";
     vpcCidr = "10.0.0.0/16";
-    vpcHelper = new VpcHelper();
+    vpcHelper = new VpcHelper("eu-west-3");
+    igwHelper = new IgwHelper("eu-west-3")
 
     if(await vpcHelper.exists(vpcName) === false){
         await vpcHelper.create(vpcName, vpcCidr);
@@ -84,18 +85,20 @@ test("attach_IgwAlreadyAttach_ThrowException", async () => {
 });
 
 test("attach_VpcNotFound_ThrowException", async () => {
-    //Given, When, Then
+    //Given
+    let fakeIgwName = "Vpc_Not_Exist";
+    // When, Then
 
-    expect(igw.attach(igwName, "Vpc_Not_Exist")).rejects.toThrow(VpcNotFoundException)
+    expect(igwHelper.attach(igwName, fakeIgwName)).rejects.toThrow(VpcNotFoundException)
 });
 
 
 test("attach_VpcAlreadyAttached_ThrowException", async () => {
     //Given
-    igw.attach(igwName, vpcName)
+    igwHelper.attach(igwName, vpcName)
 
     //When, Then
-    expect(igw.attach(igwName, vpcName)).rejects.toThrow(VpcAlreadyAttachedException)
+    expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(VpcAlreadyAttachedException)
 });
 
 test("detach_IgwNotAttached_ThrowException", async () => {
@@ -103,14 +106,14 @@ test("detach_IgwNotAttached_ThrowException", async () => {
     expect(igwHelper.detach(igwName, vpcName)).rejects.toThrow(IgwNotAttachedException)
 });
 
-afterEach(async () =>{
+afterAll(async () =>{
     if (await igwHelper.exists(igwName)) {
         //TODO NGY the delete method get an optionnal parameter. By default = false. If true, it forces an attached igw to be deleted
         await igwHelper.delete(igwName, true)
     }
 })
 
-afterAll(async () => {
+afterEach(async () => {
     if (await vpcHelper.exists(vpcName)) {
         await vpcHelper.delete(vpcName)
     }
