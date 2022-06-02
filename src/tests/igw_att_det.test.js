@@ -13,29 +13,29 @@ const IgwHelper = require("../igw/IgwHelper");
 
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNotAttachedException = require("../igw/IgwNotAttachedException");
-const IgwAlreadyAttachedException = require("../igw/IgwAlreadyAttachedException");
+const AlreadyAttachedException = require("../igw/AlreadyAttachedException");
 
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
-const VpcAlreadyAttachedException = require("../vpc/VpcAlreadyAttachedException")
 
 let igwHelper, vpcHelper, vpcName, vpcCidr, igwName;
 
 beforeAll(async () => {
-    vpcName = "Vpc-Deploy-test";
-    vpcCidr = "10.0.0.0/16";
     vpcHelper = new VpcHelper("eu-west-3");
     igwHelper = new IgwHelper("eu-west-3")
 
-    if(await vpcHelper.exists(vpcName) === false){
-        await vpcHelper.create(vpcName, vpcCidr);
-    }
-});
-
-beforeEach(async () =>{
     igwName = "Igw-Deploy-test";
 
     if(await igwHelper.exists(igwName) === false){
         await igwHelper.create(igwName);
+    }
+});
+
+beforeEach(async () =>{
+    vpcName = "Vpc-Deploy-test";
+    vpcCidr = "10.0.0.0/16";
+
+    if(await vpcHelper.exists(vpcName) === false){
+        await vpcHelper.create(vpcName, vpcCidr);
     }
 })
 
@@ -53,6 +53,8 @@ test("attach_NominalCase_Success", async () => {
 
 test("detach_NominalCase_Success", async () => {
     //Given
+
+    await igwHelper.attach(igwName, vpcName)
     expect(await igwHelper.state(igwName)).toEqual("attached")
 
     //When
@@ -67,18 +69,22 @@ test("attach_IgwNotExist_ThrowException", async () => {
     let igwNameNotExist = "Deploy-NotExist"
 
     //When
-    igwHelper.attach(igwName, vpcName)
+    expect(igwHelper.attach(igwNameNotExist, vpcName)).rejects.toThrow(IgwNotFoundException)
 
     //Then
-    expect(igwHelper.attach(igwNameNotExist, vpcName)).rejects.toThrow(IgwNotFoundException)
+    //Exception is thrown
 });
 
-test("attach_IgwAlreadyAttach_ThrowException", async () => {
+test("attach_IgwOrVpcAlreadyAttach_ThrowException", async () => {
     //Given
+    //TODO est de que le vpc exists
+    //TODO est ce que le igw exists
     await igwHelper.attach(igwName, vpcName)
+    //TODO est ce que le igw est attaché
+    
 
     //When
-    expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(IgwAlreadyAttachedException)
+    expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(AlreadyAttachedException)
 
     //Then
     //Exception is thrown
@@ -90,15 +96,6 @@ test("attach_VpcNotFound_ThrowException", async () => {
     // When, Then
 
     expect(igwHelper.attach(igwName, fakeIgwName)).rejects.toThrow(VpcNotFoundException)
-});
-
-
-test("attach_VpcAlreadyAttached_ThrowException", async () => {
-    //Given
-    igwHelper.attach(igwName, vpcName)
-
-    //When, Then
-    expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(VpcAlreadyAttachedException)
 });
 
 test("detach_IgwNotAttached_ThrowException", async () => {
@@ -115,6 +112,9 @@ afterAll(async () =>{
 
 afterEach(async () => {
     if (await vpcHelper.exists(vpcName)) {
+        if(await vpcHelper.isAttached(vpcName)){
+            await igwHelper.detach(igwName, vpcName)
+        }
         await vpcHelper.delete(vpcName)
     }
 })
