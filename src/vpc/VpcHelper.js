@@ -137,7 +137,7 @@ module.exports = class VpcHelper {
 
         const command = new DescribeInternetGatewaysCommand(params);
         const response = await this.#client.send(command);
-        let igw = response["InternetGateways"][0]
+        let igw = response.InternetGateways[0]
         return igw !== undefined;
     }
 }
