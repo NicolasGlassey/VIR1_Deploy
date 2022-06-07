@@ -39,7 +39,7 @@ module.exports = class VpcHelper {
             InstanceTenancy: "default",
             TagSpecifications: [
                 {
-                    ResourceType: "vpc",
+                    ResourceType: resourcetype,
                     Tags: [
                         {
                             Key: "Name",
