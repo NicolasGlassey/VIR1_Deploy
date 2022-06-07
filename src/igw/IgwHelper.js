@@ -101,14 +101,6 @@ module.exports = class IgwHelper {
         return response["InternetGateways"][0]
     }
 
-    async exists(igwName){
-        let igw = await this.find(igwName)
-        if(igw !== undefined){
-            return true
-        }
-        return false
-    }
-
    /**
     * @brief This method creates an igw with the given name in the constructor
     * @param {string} name 
