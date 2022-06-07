@@ -17,14 +17,15 @@ let vpcName;
 let vpcCidr;
 
 beforeEach(() => {
-    vpcHelper = new VpcHelper(eu-west-3);
+    vpcHelper = new VpcHelper("eu-west-3");
     vpcName = "VPC_TEST";
     vpcCidr = "10.0.0.0/16";
 })
 
-test("create_CreateNewVpc_Success", async () => {
-    //given
 
+
+test("create_NominalCase_Success", async () => {
+    //given
 
     //when
     await vpcHelper.create(vpcName, vpcCidr);
@@ -33,9 +34,8 @@ test("create_CreateNewVpc_Success", async () => {
     expect(await vpcHelper.exists(vpcName)).toBe(true);
 });
 
-test("delete_DeleteVpc_Success", async () => {
+test("delete_NominalCase_Success", async () => {
     //given
-    //TODO add assertion exists
 
     //when
     await vpcHelper.delete(vpcName);
@@ -66,10 +66,14 @@ test("delete_VpcNotFound_ThrowException", async () => {
     //Exception is thrown
 });
 
-afterEach(() => {
+afterAll(async () => {
     //TODO NGY test if the vpc exists before delete attempt (avoid throwing an exception)
-    vpcHelper.delete("VPC_TEST_NOT_DELETABLE");
-    vpcHelper.delete("VPC_TEST");
+    if(await vpcHelper.exists("VPC_TEST_NOT_DELETABLE")){
+        vpcHelper.delete("VPC_TEST_NOT_DELETABLE");
+    }
+    if(await vpcHelper.exists("VPC_TEST")){
+        vpcHelper.delete("VPC_TEST");
+    }
 });
 
 
