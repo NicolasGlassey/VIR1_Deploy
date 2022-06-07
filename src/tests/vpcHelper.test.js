@@ -10,7 +10,7 @@
 
 const VpcHelper = require('../vpc/VpcHelper.js');
 const VpcNotFoundException = require("../vpc/VpcNotFoundException.js");
-const VpcAlreadyExistsException = require("../vpc/VpcAlreadyExistsException");
+const VpcNameNotAvailableException = require("../vpc/VpcNameNotAvailableException");
 
 let vpcHelper;
 let vpcName;
@@ -49,7 +49,7 @@ test("create_VpcAlreadyExists_ThrowException", async () => {
     await vpcHelper.create(vpcName, vpcCidr)
 
     //when
-    await expect(vpcHelper.create(vpcName, vpcCidr)).rejects.toThrow(VpcAlreadyExistsException);
+    await expect(vpcHelper.create(vpcName, vpcCidr)).rejects.toThrow(VpcNameNotAvailableException);
 
     //then
     //Exception is thrown

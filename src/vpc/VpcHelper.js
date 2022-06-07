@@ -10,7 +10,7 @@ const {EC2Client, CreateVpcCommand, DeleteVpcCommand, DescribeVpcsCommand, Descr
 const config = require('../config');
 
 const VpcNotFoundException = require("./VpcNotFoundException");
-const VpcAlreadyExistsException = require("./VpcAlreadyExistsException");
+const VpcNameNotAvailableException = require("./VpcNameNotAvailableException");
 //TODO ajouter la vérification de limite
 const VpcExceedLimitException = require("./VpcExceedLimitException");
 const VpcNotDeletableException = require("./VpcNotDeletableException");
@@ -30,7 +30,7 @@ module.exports = class VpcHelper {
      */
     async create(name, cidr, resourcetype = "vpc") {
         if (await this.exists(name)) {
-            throw new VpcAlreadyExistsException();
+            throw new VpcNameNotAvailableException();
         }
         const params = {
             CidrBlock: cidr,
