@@ -15,7 +15,7 @@ const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNotAttachedException = require("./IgwNotAttachedException");
 const AlreadyAttachedException = require("./AlreadyAttachedException");
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
-const IgwNameNotAvailable = require('./IgwNameNotAvailable');
+const IgwNameNotAvailableException = require('./IgwNameNotAvailableException');
 
 module.exports = class IgwHelper {
 
@@ -117,7 +117,7 @@ module.exports = class IgwHelper {
     * @returns id of the created igw or null
     */
     async create(name, resourceType = "internet-gateway"){
-      if(await this.exists(name)) throw new IgwNameNotAvailable();
+      if(await this.exists(name)) throw new IgwNameNotAvailableException();
     
       var params = {
          TagSpecifications: [

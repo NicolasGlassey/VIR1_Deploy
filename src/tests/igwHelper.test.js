@@ -9,7 +9,7 @@
  "use strict";
 const IgwHelper = require("../igw/IgwHelper.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
-const IgwAlreadyExistsException = require("../igw/IgwAlreadyExistsException.js");
+const IgwNameNotAvailableException = require("../igw/IgwNameNotAvailableException.js");
 
 //TODO NGY add Before Each function (igwName, igw)
 
@@ -58,7 +58,7 @@ test('create_IgwAlreadyExists_ThrowException', async () => {
     // refer to before each method
 
     // when
-    await expect(igwHelper.create(igwName)).rejects.toThrow(IgwAlreadyExistsException);
+    await expect(igwHelper.create(igwName)).rejects.toThrow(IgwNameNotAvailableException);
 
     // then
     // Exception is thrown
