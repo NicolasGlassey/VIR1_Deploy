@@ -40,7 +40,7 @@ module.exports = class IgwHelper {
 
                     const command = new AttachInternetGatewayCommand(
                         {
-                            InternetGatewayId: igw["InternetGatewayId"],
+                            InternetGatewayId: igw.InternetGatewayId,
                             VpcId: vpcId
                         }
                     )
@@ -62,8 +62,8 @@ module.exports = class IgwHelper {
             if(await this.state(igwName) == "attached"){
                 let command = new DetachInternetGatewayCommand(
                     {
-                        InternetGatewayId: igw["InternetGatewayId"],
-                        VpcId: igw["Attachments"][0]["VpcId"]
+                        InternetGatewayId: igw.InternetGatewayId,
+                        VpcId: igw.Attachments[0].VpcId
                     }
                 )
                 let response = await this.#client.send(command)
@@ -78,7 +78,7 @@ module.exports = class IgwHelper {
 
     async state(igwName){        
         let response = await this.find(igwName);
-        if(response["Attachments"][0] !== undefined){
+        if(response.Attachments[0] !== undefined){
             return "attached"
         }
         return "detached"
@@ -98,7 +98,7 @@ module.exports = class IgwHelper {
 
         const command = new DescribeInternetGatewaysCommand(params);
         const response = await this.#client.send(command);
-        return response["InternetGateways"][0]
+        return response.InternetGateways[0]
     }
 
    /**
@@ -128,7 +128,7 @@ module.exports = class IgwHelper {
       const command = new CreateInternetGatewayCommand(params);
       const response = await this.#client.send(command);
       if(response === undefined) return null;
-      return response["InternetGateway"]["InternetGatewayId"];
+      return response.InternetGateway.InternetGatewayId;
      }
 
    /**
@@ -172,10 +172,10 @@ module.exports = class IgwHelper {
         ],
       };
       const command = new DescribeInternetGatewaysCommand(params);
-      const response = await this.#client.send(command);
-      if(response["InternetGateways"].length === 0) return null;
+      const igw = await this.#client.send(command);
+      if(igw.InternetGateways.length === 0) return null;
         
-      return response["InternetGateways"][0]["InternetGatewayId"];
+      return igw.InternetGateways[0].InternetGatewayId;
     }
 
    /**
@@ -195,6 +195,6 @@ module.exports = class IgwHelper {
       };
       const command = new DescribeInternetGatewaysCommand(params);
       const response = await this.#client.send(command);
-      return response["InternetGateways"];
+      return response.InternetGateways;
     }
  }
