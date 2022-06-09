@@ -13,7 +13,7 @@ const VpcHelper = require("../vpc/VpcHelper")
 
 const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNotAttachedException = require("./IgwNotAttachedException");
-const AlreadyAttachedException = require("./AlreadyAttachedException");
+const IgwAttachmentException = require("./IgwAttachmentException");
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
 const IgwNameNotAvailableException = require('./IgwNameNotAvailableException');
 
@@ -46,7 +46,7 @@ module.exports = class IgwHelper {
                     )
                     const response = await this.#client.send(command)
                 } else {
-                    throw new AlreadyAttachedException()
+                    throw new IgwAttachmentException()
                 }
             } else {
                 throw new IgwNotFoundException()
