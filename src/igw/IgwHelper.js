@@ -21,13 +21,17 @@ module.exports = class IgwHelper {
 
 
     //region private attributes
+    #attached;
+    #detached
     #client; 
     #vpcHelper;
     //endregion private attributes
 
     constructor(region) {
       this.#client = new EC2Client({ region: region });
-      this.#vpcHelper = new VpcHelper("eu-west-3")
+      this.#vpcHelper = new VpcHelper("eu-west-3");
+      this.#attached = "attached";
+      this.#detached = "detached" 
     }
 
     async attach(igwName, vpcName) {
@@ -36,7 +40,7 @@ module.exports = class IgwHelper {
                 let igw = await this.find(igwName)
                 let vpcId = await this.#vpcHelper.findId(vpcName)
                 //TODO à voir en review
-                if (await this.state(igwName) === "detached" || !(await this.#vpcHelper.isAttached(vpcName))) {
+                if (await this.state(igwName) === this.#detached || !(await this.#vpcHelper.isAttached(vpcName))) {
 
                     const command = new AttachInternetGatewayCommand(
                         {
@@ -59,7 +63,7 @@ module.exports = class IgwHelper {
     async detach(igwName){
         if(await this.exists(igwName)){
             let igw = await this.find(igwName)
-            if(await this.state(igwName) == "attached"){
+            if(await this.state(igwName) === this.#attached){
                 let command = new DetachInternetGatewayCommand(
                     {
                         InternetGatewayId: igw.InternetGatewayId,
@@ -78,10 +82,11 @@ module.exports = class IgwHelper {
 
     async state(igwName){        
         let response = await this.find(igwName);
+        console.log(response)
         if(response.Attachments[0] !== undefined){
-            return "attached"
+            return this.#attached
         }
-        return "detached"
+        return this.#detached
     }
 
     async find(igwName) {
