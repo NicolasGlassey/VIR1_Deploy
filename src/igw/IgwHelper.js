@@ -33,7 +33,15 @@ module.exports = class IgwHelper {
       this.#attached = "attached";
       this.#detached = "detached" 
     }
-
+    
+    /**
+    * @brief This method attach an igw and a vpc with the given names in the constructor
+    * @param {string} igwName
+    * @param {string} vpcName
+    * @exception IgwAttachmentException is thrown when the igw ot the vpc are already attached
+    * @exception IgwNotFoundException is thrown when the igw isn't exist
+    * @exception VpcNotFoundException is thrown when the vpc isn't exist
+    */
     async attach(igwName, vpcName) {
         if(await this.#vpcHelper.exists(vpcName)) {
             if (await this.exists(igwName)) {
@@ -60,6 +68,12 @@ module.exports = class IgwHelper {
         }
     }
 
+    /**
+    * @brief This method detach an igw with the given name in the constructor
+    * @param {string} igwName
+    * @exception IgwNotAttachedException is thrown when the igw isn't attached
+    * @exception IgwNotFoundException is thrown when the igw isn't exist
+    */
     async detach(igwName){
         if(await this.exists(igwName)){
             let igw = await this.find(igwName)
@@ -80,6 +94,11 @@ module.exports = class IgwHelper {
 
     }
 
+    /**
+    * @brief This method check the attachment state for the igw with the given name in the constructor
+    * @param {string} igwName 
+    * @returns state of igw attachement
+    */
     async state(igwName){        
         let response = await this.find(igwName);
         console.log(response)
@@ -89,6 +108,11 @@ module.exports = class IgwHelper {
         return this.#detached
     }
 
+       /**
+    * @brief This method find an igw with the given name in the constructor
+    * @param {string} igwName 
+    * @returns the igw finded
+    */
     async find(igwName) {
         var params = {
             Filters: [
