@@ -27,6 +27,8 @@ module.exports = class VpcHelper {
      * @brief This method creates an vpc in aws asynchronously
      * @param {string} name - the name of the vpc
      * @param {string} vpcCidrBlock - the cidr block of the vpc
+     * @exception EC2Client.VpcExceedLimitException the limit of vpcs is exceeded
+     * @exception VpcNameNotAvailableException the name choose is already used
      */
     async create(name, cidr, resourcetype = "vpc") {
         if (await this.exists(name)) {
@@ -50,17 +52,17 @@ module.exports = class VpcHelper {
             ]
         };
         return await this.#client.send(new CreateVpcCommand(params));
+
     }
 
     /**
      * @brief This method deletes a vpc
      * @param {string} name - the name of the vpc
-     * @throws VpcNotFoundException if the vpc is not found
+     * @exception VpcNotFoundException if the vpc is not found
+     * @exception VpcNotDeletableException the vpc is attached and we can't delete
      */
     async delete(name) {
-        if (await this.exists(name) === false) {
-            throw new VpcNotFoundException();
-        }
+        if (await this.exists(name) === false) throw new VpcNotFoundException();
         try {
             return this.#client.send(new DeleteVpcCommand({
                     VpcId: await this.findId(name)
@@ -77,6 +79,7 @@ module.exports = class VpcHelper {
     /**
      * @brief This method returns the vpc id of the vpc with the given name
      * @param {string} name - the name of the vpc
+     * @returns vpc id
      */
     async findId(name) {
         const params = {
@@ -100,6 +103,7 @@ module.exports = class VpcHelper {
     /**
      * @brief This method check if the vpc exists
      * @param {string} name - the name of the vpc
+     * @returns a bool if vpc exists
      */
     async exists(name) {
         const params = {
@@ -120,6 +124,7 @@ module.exports = class VpcHelper {
     /**
      * @brief This method check if the vpc has dependencies attached
      * @param {string} name - the name of the vpc
+     * @returns the vpc attachment state
      */
     async isAttached(name) {
 
