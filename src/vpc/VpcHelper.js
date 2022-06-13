@@ -10,7 +10,7 @@ const {EC2Client, CreateVpcCommand, DeleteVpcCommand, DescribeVpcsCommand, Descr
 const config = require('../config');
 
 const VpcNotFoundException = require("./VpcNotFoundException");
-const VpcAlreadyExistsException = require("./VpcAlreadyExistsException");
+const VpcNameNotAvailableException = require("./VpcNameNotAvailableException");
 //TODO ajouter la vérification de limite
 const VpcExceedLimitException = require("./VpcExceedLimitException");
 const VpcNotDeletableException = require("./VpcNotDeletableException");
@@ -25,12 +25,14 @@ module.exports = class VpcHelper {
 
     /**
      * @brief This method creates an vpc in aws asynchronously
-     * @param {string} vpcTagName - the name of the vpc
+     * @param {string} name - the name of the vpc
      * @param {string} vpcCidrBlock - the cidr block of the vpc
+     * @exception EC2Client.VpcExceedLimitException the limit of vpcs is exceeded
+     * @exception VpcNameNotAvailableException the name choose is already used
      */
     async create(name, cidr, resourcetype = "vpc") {
         if (await this.exists(name)) {
-            throw new VpcAlreadyExistsException();
+            throw new VpcNameNotAvailableException();
         }
         const params = {
             CidrBlock: cidr,
@@ -39,7 +41,7 @@ module.exports = class VpcHelper {
             InstanceTenancy: "default",
             TagSpecifications: [
                 {
-                    ResourceType: "vpc",
+                    ResourceType: resourcetype,
                     Tags: [
                         {
                             Key: "Name",
@@ -50,17 +52,17 @@ module.exports = class VpcHelper {
             ]
         };
         return await this.#client.send(new CreateVpcCommand(params));
+
     }
 
     /**
      * @brief This method deletes a vpc
-     * @param {string} vpcTagName - the name of the vpc
-     * @throws VpcNotFoundException if the vpc is not found
+     * @param {string} name - the name of the vpc
+     * @exception VpcNotFoundException if the vpc is not found
+     * @exception VpcNotDeletableException the vpc is attached and we can't delete
      */
     async delete(name) {
-        if (await this.exists(name) === false) {
-            throw new VpcNotFoundException();
-        }
+        if (await this.exists(name) === false) throw new VpcNotFoundException();
         try {
             return this.#client.send(new DeleteVpcCommand({
                     VpcId: await this.findId(name)
@@ -76,7 +78,8 @@ module.exports = class VpcHelper {
 
     /**
      * @brief This method returns the vpc id of the vpc with the given name
-     * @param {string} vpcTagName - the name of the vpc
+     * @param {string} name - the name of the vpc
+     * @returns vpc id
      */
     async findId(name) {
         const params = {
@@ -92,22 +95,23 @@ module.exports = class VpcHelper {
         const describeVpcsCommand = new DescribeVpcsCommand(params);
         const vpc = await this.#client.send(describeVpcsCommand);
         if (vpc.Vpcs.length === 0) {
-            throw new VpcNotFoundException(`Vpc ${vpcTagName} not found`);
+            throw new VpcNotFoundException(`Vpc ${name} not found`);
         }
         return vpc.Vpcs[0].VpcId;
     }
 
     /**
      * @brief This method check if the vpc exists
-     * @param {string} vpcTagName - the name of the vpc
+     * @param {string} name - the name of the vpc
+     * @returns a bool if vpc exists
      */
-    async exists(vpcTagName) {
+    async exists(name) {
         const params = {
             Filters: [
                 {
                     Name: "tag:Name",
                     Values: [
-                        vpcTagName
+                        name
                     ]
                 }
             ]
@@ -119,11 +123,12 @@ module.exports = class VpcHelper {
 
     /**
      * @brief This method check if the vpc has dependencies attached
-     * @param {string} vpcTagName - the name of the vpc
+     * @param {string} name - the name of the vpc
+     * @returns the vpc attachment state
      */
-    async isAttached(vpcTagName) {
+    async isAttached(name) {
 
-        let vpcId = await this.findId(vpcTagName)
+        let vpcId = await this.findId(name)
         const params = {
             Filters: [
                 {
@@ -137,7 +142,7 @@ module.exports = class VpcHelper {
 
         const command = new DescribeInternetGatewaysCommand(params);
         const response = await this.#client.send(command);
-        let igw = response["InternetGateways"][0]
+        let igw = response.InternetGateways[0]
         return igw !== undefined;
     }
 }

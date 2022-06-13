@@ -13,40 +13,52 @@ const VpcHelper = require("../vpc/VpcHelper")
 
 const IgwNotFoundException = require("./IgwNotFoundException");
 const IgwNotAttachedException = require("./IgwNotAttachedException");
-const AlreadyAttachedException = require("./AlreadyAttachedException");
+const IgwAttachmentException = require("./IgwAttachmentException");
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
-const IgwNameNotAvailable = require('./IgwNameNotAvailable');
+const IgwNameNotAvailableException = require('./IgwNameNotAvailableException');
 
 module.exports = class IgwHelper {
 
 
     //region private attributes
+    #attached;
+    #detached
     #client; 
     #vpcHelper;
     //endregion private attributes
 
     constructor(region) {
       this.#client = new EC2Client({ region: region });
-      this.#vpcHelper = new VpcHelper("eu-west-3")
+      this.#vpcHelper = new VpcHelper("eu-west-3");
+      this.#attached = "attached";
+      this.#detached = "detached" 
     }
-
+    
+    /**
+    * @brief This method attach an igw and a vpc with the given names in the constructor
+    * @param {string} igwName
+    * @param {string} vpcName
+    * @exception IgwAttachmentException is thrown when the igw ot the vpc are already attached
+    * @exception IgwNotFoundException is thrown when the igw isn't exist
+    * @exception VpcNotFoundException is thrown when the vpc isn't exist
+    */
     async attach(igwName, vpcName) {
         if(await this.#vpcHelper.exists(vpcName)) {
             if (await this.exists(igwName)) {
                 let igw = await this.find(igwName)
                 let vpcId = await this.#vpcHelper.findId(vpcName)
                 //TODO à voir en review
-                if (await this.state(igwName) === "detached" || !(await this.#vpcHelper.isAttached(vpcName))) {
+                if (await this.state(igwName) === this.#detached || !(await this.#vpcHelper.isAttached(vpcName))) {
 
                     const command = new AttachInternetGatewayCommand(
                         {
-                            InternetGatewayId: igw["InternetGatewayId"],
+                            InternetGatewayId: igw.InternetGatewayId,
                             VpcId: vpcId
                         }
                     )
                     const response = await this.#client.send(command)
                 } else {
-                    throw new AlreadyAttachedException()
+                    throw new IgwAttachmentException()
                 }
             } else {
                 throw new IgwNotFoundException()
@@ -56,14 +68,20 @@ module.exports = class IgwHelper {
         }
     }
 
+    /**
+    * @brief This method detach an igw with the given name in the constructor
+    * @param {string} igwName
+    * @exception IgwNotAttachedException is thrown when the igw isn't attached
+    * @exception IgwNotFoundException is thrown when the igw isn't exist
+    */
     async detach(igwName){
         if(await this.exists(igwName)){
             let igw = await this.find(igwName)
-            if(await this.state(igwName) == "attached"){
+            if(await this.state(igwName) === this.#attached){
                 let command = new DetachInternetGatewayCommand(
                     {
-                        InternetGatewayId: igw["InternetGatewayId"],
-                        VpcId: igw["Attachments"][0]["VpcId"]
+                        InternetGatewayId: igw.InternetGatewayId,
+                        VpcId: igw.Attachments[0].VpcId
                     }
                 )
                 let response = await this.#client.send(command)
@@ -76,14 +94,25 @@ module.exports = class IgwHelper {
 
     }
 
+    /**
+    * @brief This method check the attachment state for the igw with the given name in the constructor
+    * @param {string} igwName 
+    * @returns state of igw attachement
+    */
     async state(igwName){        
         let response = await this.find(igwName);
-        if(response["Attachments"][0] !== undefined){
-            return "attached"
+        console.log(response)
+        if(response.Attachments[0] !== undefined){
+            return this.#attached
         }
-        return "detached"
+        return this.#detached
     }
 
+       /**
+    * @brief This method find an igw with the given name in the constructor
+    * @param {string} igwName 
+    * @returns the igw finded
+    */
     async find(igwName) {
         var params = {
             Filters: [
@@ -98,15 +127,7 @@ module.exports = class IgwHelper {
 
         const command = new DescribeInternetGatewaysCommand(params);
         const response = await this.#client.send(command);
-        return response["InternetGateways"][0]
-    }
-
-    async exists(igwName){
-        let igw = await this.find(igwName)
-        if(igw !== undefined){
-            return true
-        }
-        return false
+        return response.InternetGateways[0]
     }
 
    /**
@@ -117,7 +138,7 @@ module.exports = class IgwHelper {
     * @returns id of the created igw or null
     */
     async create(name, resourceType = "internet-gateway"){
-      if(await this.exists(name)) throw new IgwNameNotAvailable();
+      if(await this.exists(name)) throw new IgwNameNotAvailableException();
     
       var params = {
          TagSpecifications: [
@@ -136,7 +157,7 @@ module.exports = class IgwHelper {
       const command = new CreateInternetGatewayCommand(params);
       const response = await this.#client.send(command);
       if(response === undefined) return null;
-      return response["InternetGateway"]["InternetGatewayId"];
+      return response.InternetGateway.InternetGatewayId;
      }
 
    /**
@@ -180,10 +201,10 @@ module.exports = class IgwHelper {
         ],
       };
       const command = new DescribeInternetGatewaysCommand(params);
-      const response = await this.#client.send(command);
-      if(response["InternetGateways"].length === 0) return null;
+      const igw = await this.#client.send(command);
+      if(igw.InternetGateways.length === 0) return null;
         
-      return response["InternetGateways"][0]["InternetGatewayId"];
+      return igw.InternetGateways[0].InternetGatewayId;
     }
 
    /**
@@ -203,6 +224,6 @@ module.exports = class IgwHelper {
       };
       const command = new DescribeInternetGatewaysCommand(params);
       const response = await this.#client.send(command);
-      return response["InternetGateways"];
+      return response.InternetGateways;
     }
  }

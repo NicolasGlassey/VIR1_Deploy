@@ -9,7 +9,7 @@
  "use strict";
 const IgwHelper = require("../igw/IgwHelper.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
-const IgwAlreadyExistsException = require("../igw/IgwAlreadyExistsException.js");
+const IgwNameNotAvailableException = require("../igw/IgwNameNotAvailableException.js");
 
 //TODO NGY add Before Each function (igwName, igw)
 
@@ -20,17 +20,6 @@ beforeEach(() => {
     igwHelper = new IgwHelper("eu-west-3");
     igwName = "myIgwName";
 });
-
-test('exists_NominalCase_Success', async() => {
-    // given
-    // refer to before each method
-
-    // when
-    //Event is called directly by the assertion
-
-    // then
-    expect(await igwHelper.exists(igwName)).toEqual(true);
-})
 
 test('exists_NotFound_Success', async() => {
     // given
@@ -53,12 +42,23 @@ test('create_CreateIgw_Success', async() => {
     //test if exists using the igw name
 })
 
-test('create_IgwAlreadyExists_ThrowException', async () => {
+test('exists_NominalCase_Success', async() => {
     // given
     // refer to before each method
 
     // when
-    await expect(igwHelper.create(igwName)).rejects.toThrow(IgwAlreadyExistsException);
+    //Event is called directly by the assertion
+
+    // then
+    expect(await igwHelper.exists(igwName)).toEqual(true);
+})
+
+test('create_IgwNameNotAvailable_ThrowException', async () => {
+    // given
+    // refer to before each method
+
+    // when
+    await expect(igwHelper.create(igwName)).rejects.toThrow(IgwNameNotAvailableException);
 
     // then
     // Exception is thrown
@@ -80,12 +80,11 @@ test('all_GetListOfAllIgw_Success', async() => {
  * @depends-on find_getExistingIgw_success
  * @depends-on find_getNotExistentIgw_success
  */
- test('delete_deleteAnExistingIgw_Success', async () => {
+ test('delete_NominalCase_Success', async () => {
     // given
-    igwName = "Igw-test-deploy-1";
 
     // when
-    await igwHelper.delete(igwHelper);
+    await igwHelper.delete(igwName);
 
     // then
     let id = await igwHelper.findId(igwHelper);

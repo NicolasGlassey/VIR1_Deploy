@@ -13,7 +13,7 @@ const IgwHelper = require("../igw/IgwHelper");
 
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNotAttachedException = require("../igw/IgwNotAttachedException");
-const AlreadyAttachedException = require("../igw/AlreadyAttachedException");
+const IgwAttachmentException = require("../igw/IgwAttachmentException");
 
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
 
@@ -84,7 +84,7 @@ test("attach_IgwOrVpcAlreadyAttach_ThrowException", async () => {
     
 
     //When
-    expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(AlreadyAttachedException)
+    expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(IgwAttachmentException)
 
     //Then
     //Exception is thrown
