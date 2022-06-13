@@ -84,6 +84,34 @@ test("create_NameNotAvailable_ThrowException", async () => {
     await expect(subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone)).rejects.toThrow(SubnetNameNotAvailableException);
 })
 
+/**
+ * @brief Test if the subnet can be deleted
+ * @exception SubnetNotFoundException
+ */
+test("delete_NotFound_ThrowException", async () => {
+    // given
+
+    // when
+
+    // then
+    await expect(subnetHelper.delete(subnetName)).rejects.toThrow(SubnetNotFoundException);
+})
+
+/**
+ * @brief Test if the subnet can be deleted
+ */
+test("delete_NominalCase_Success", async () => {
+    // given
+    await vpcHelper.create(vpcName, vpcCidr);
+    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+
+    // when
+    await subnetHelper.delete(subnetName);
+
+    // then
+    expect(await subnetHelper.exists(subnetName)).toEqual(false);
+})
+
 afterEach(async () => {
     try {
         await subnetHelper.delete(subnetName);
