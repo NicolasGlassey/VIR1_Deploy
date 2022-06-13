@@ -41,6 +41,21 @@ test("exists_NotFound_Success", async () => {
     expect(await subnetHelper.exists(subnetName)).toEqual(false);
 })
 
+/**
+ * @brief Test if the subnet exists
+ */
+test("exists_Found_Success", async () => {
+    // given
+    await vpcHelper.create(vpcName, vpcCidr);
+    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+
+    // when
+
+    // then
+    expect(await subnetHelper.exists(subnetName)).toEqual(true);
+})
+
+
 
 afterEach(async () => {
     try {
