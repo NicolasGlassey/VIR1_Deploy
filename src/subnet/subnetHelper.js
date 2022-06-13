@@ -90,4 +90,17 @@ module.exports = class SubnetHelper {
         const createSubnetCommand = new CreateSubnetCommand(params);
         return await this.#client.send(createSubnetCommand);
     }
+
+    /**
+     * @brief This method delete a subnet in aws asynchronously
+     * @param {string} name - the name of the subnet
+     * @exception SubnetNotFoundException if the subnet is not found
+     */
+    async delete(name) {
+        if (await this.exists(name) === false) throw new SubnetNotFoundException();
+        return this.#client.send(new DeleteSubnetCommand({
+                SubnetId: await this.findId(name)
+            }
+        ));
+    }
 }
