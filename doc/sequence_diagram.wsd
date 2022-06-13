@@ -1,0 +1,42 @@
+@startuml sequence_diagram
+
+title Scénario complet déploiement
+
+Main -> VpcHelper : Create(Name, Cidr, RessourceType = "VPC")
+
+VpcHelper --> Core : Exist(Name)
+
+alt Success
+
+    VpcHelper <- Core : Vpc not exist
+    VpcHelper -> Main : Vpc created
+
+else Failure
+
+    VpcHelper <- Core : Exception
+    VpcHelper -> Main : Exception
+
+end
+
+
+Main -> IgwHelper : Create(Name, Cidr, RessourceType = "Internet-gateway")
+
+IgwHelper --> Core : Exist(Name)
+
+alt Success
+
+    IgwHelper <- Core : Igw not exist
+    IgwHelper -> Main : Igw created
+
+else Failure
+
+    IgwHelper <- Core : Exception
+    IgwHelper -> Main : Exception
+
+end
+
+Main -> IgwHelper : Attach(igwName, vpcName)
+
+
+
+@enduml
