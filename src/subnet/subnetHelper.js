@@ -56,4 +56,38 @@ module.exports = class SubnetHelper {
         const subnet = await this.#client.send(describeSubnetsCommand);
         return subnet.Subnets[0].SubnetId;
     }
+
+    /**
+     * @brief This method creates a subnet in aws asynchronously
+     * @param {string} name - the name of the subnet
+     * @param {string} vpcName - the name of the vpc
+     * @param {string} cidr - the cidr block of the subnet
+     * @param {string} availabilityZone - the availability zone of the subnet
+     * @param {string} resourceType - the type of the subnet
+     * @exception SubnetNameNotAvailableException if the subnet name is not available
+     */
+    async create(name, vpcName, cidr, availabilityZone, resourceType = "subnet") {
+        if (await this.exists(name)) {
+            throw new SubnetNameNotAvailableException();
+        }
+        const vpcId = await this.#vpcHelper.findId(vpcName);
+        const params = {
+            CidrBlock: cidr,
+            VpcId: vpcId,
+            AvailabilityZone: availabilityZone,
+            TagSpecifications: [
+                {
+                    ResourceType: resourceType,
+                    Tags: [
+                        {
+                            Key: "Name",
+                            Value: name
+                        }
+                    ]
+                }
+            ]
+        }
+        const createSubnetCommand = new CreateSubnetCommand(params);
+        return await this.#client.send(createSubnetCommand);
+    }
 }
