@@ -55,7 +55,34 @@ test("exists_Found_Success", async () => {
     expect(await subnetHelper.exists(subnetName)).toEqual(true);
 })
 
+/**
+ * @brief Test if the subnet can be created
+ */
+test("create_NominalCase_Success", async () => {
+    // given
 
+    // when
+    await vpcHelper.create(vpcName, vpcCidr);
+    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+
+    // then
+    expect(await subnetHelper.exists(subnetName)).toEqual(true);
+})
+
+/**
+ * @brief Test if the subnet already has been created
+ * @exception SubnetNameNotAvailableException
+ */
+test("create_NameNotAvailable_ThrowException", async () => {
+    // given
+    await vpcHelper.create(vpcName, vpcCidr);
+    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+
+    // when
+
+    // then
+    await expect(subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone)).rejects.toThrow(SubnetNameNotAvailableException);
+})
 
 afterEach(async () => {
     try {
