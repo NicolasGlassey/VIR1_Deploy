@@ -5,13 +5,18 @@
  * @version  13-06-2022 - original (dedicated to VIR1)
  */
 
-const {EC2Client, DescribeSubnetsCommand} = require("@aws-sdk/client-ec2");
+const {EC2Client, DescribeSubnetsCommand, DeleteSubnetCommand, CreateSubnetCommand} = require("@aws-sdk/client-ec2");
+const SubnetNotFoundException = require("./SubnetNotFoundException");
+const SubnetNameNotAvailableException = require("./SubnetNameNotAvailableException");
+const VpcHelper = require("../vpc/VpcHelper");
 
 module.exports = class SubnetHelper {
     #client;
+    #vpcHelper;
 
     constructor(region) {
-        this.#client = new EC2Client({ region: region });
+        this.#client = new EC2Client({region: region});
+        this.#vpcHelper = new VpcHelper(region);
     }
 
     /**
