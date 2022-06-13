@@ -37,4 +37,23 @@ module.exports = class SubnetHelper {
         const subnet = await this.#client.send(describeSubnetsCommand);
         return subnet.Subnets.length > 0;
     }
+
+    /**
+     * @brief This method find the id of a subnet
+     * @param {string} name - the name of the subnet
+     * @returns the id of the subnet
+     */
+    async findId(name) {
+        const params = {
+            Filters: [
+                {
+                    Name: "tag:Name",
+                    Values: [name]
+                }
+            ]
+        }
+        const describeSubnetsCommand = new DescribeSubnetsCommand(params);
+        const subnet = await this.#client.send(describeSubnetsCommand);
+        return subnet.Subnets[0].SubnetId;
+    }
 }
