@@ -13,4 +13,23 @@ module.exports = class SubnetHelper {
     constructor(region) {
         this.#client = new EC2Client({ region: region });
     }
+
+    /**
+     * @brief This method checks if the subnet exists
+     * @param {string} name - the name of the subnet
+     * @returns a bool if subnet exists
+     */
+    async exists(name) {
+        const params = {
+            Filters: [
+                {
+                    Name: "tag:Name",
+                    Values: [name]
+                }
+            ]
+        }
+        const describeSubnetsCommand = new DescribeSubnetsCommand(params);
+        const subnet = await this.#client.send(describeSubnetsCommand);
+        return subnet.Subnets.length > 0;
+    }
 }
