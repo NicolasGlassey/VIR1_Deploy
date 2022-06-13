@@ -40,3 +40,18 @@ test("exists_NotFound_Success", async () => {
     // then
     expect(await subnetHelper.exists(subnetName)).toEqual(false);
 })
+
+
+afterEach(async () => {
+    try {
+        await subnetHelper.delete(subnetName);
+    } catch (e) {
+        // do nothing
+    }
+    try {
+        await vpcHelper.delete(vpcName);
+    } catch (e) {
+        // do nothing
+    }
+
+})
