@@ -99,7 +99,6 @@ module.exports = class IgwHelper {
     */
     async state(igwName){        
         let response = await this.find(igwName);
-        console.log(response)
         if(response.Attachments[0] !== undefined){
             return attached
         }
