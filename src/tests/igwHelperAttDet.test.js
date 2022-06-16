@@ -77,11 +77,7 @@ test("attach_IgwNotExist_ThrowException", async () => {
 
 test("attach_IgwOrVpcAlreadyAttach_ThrowException", async () => {
     //Given
-    //TODO est de que le vpc exists
-    //TODO est ce que le igw exists
     await igwHelper.attach(igwName, vpcName)
-    //TODO est ce que le igw est attaché
-    
 
     //When
     expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(IgwAttachmentException)
@@ -105,7 +101,6 @@ test("detach_IgwNotAttached_ThrowException", async () => {
 
 afterAll(async () =>{
     if (await igwHelper.exists(igwName)) {
-        //TODO NGY the delete method get an optionnal parameter. By default = false. If true, it forces an attached igw to be deleted
         await igwHelper.delete(igwName, true)
     }
 })
@@ -113,7 +108,7 @@ afterAll(async () =>{
 afterEach(async () => {
     if (await vpcHelper.exists(vpcName)) {
         if(await vpcHelper.isAttached(vpcName)){
-            await igwHelper.detach(igwName, vpcName)
+            await igwHelper.detach(igwName)
         }
         await vpcHelper.delete(vpcName)
     }

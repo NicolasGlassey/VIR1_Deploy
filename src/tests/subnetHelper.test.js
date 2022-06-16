@@ -5,7 +5,7 @@
  * @version  13-06-2022 - original (dedicated to VIR1)
  */
 
-const SubnetHelper = require("../subnet/subnetHelper.js");
+const SubnetHelper = require("../subnet/SubnetHelper.js");
 const VpcHelper = require("../vpc/VpcHelper");
 const SubnetNameNotAvailableException = require("../subnet/SubnetNameNotAvailableException");
 const SubnetNotFoundException = require("../subnet/SubnetNotFoundException");

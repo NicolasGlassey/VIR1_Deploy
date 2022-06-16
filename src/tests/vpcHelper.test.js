@@ -11,10 +11,20 @@
 const VpcHelper = require('../vpc/VpcHelper.js');
 const VpcNotFoundException = require("../vpc/VpcNotFoundException.js");
 const VpcNameNotAvailableException = require("../vpc/VpcNameNotAvailableException");
+const IgwHelper = require('../igw/IgwHelper.js');
+const VpcNotDeletableException = require('../vpc/VpcNotDeletableException.js');
+const VpcLimitExceededException = require('../vpc/VpcLimitExceededException .js');
 
 let vpcHelper;
 let vpcName;
 let vpcCidr;
+let igwHelper;
+let igwName;
+
+beforeAll(() => {
+    igwHelper = new IgwHelper("eu-west-3")
+    igwName = "IgwDeploy"
+})
 
 beforeEach(() => {
     vpcHelper = new VpcHelper("eu-west-3");
@@ -57,7 +67,6 @@ test("create_VpcAlreadyExists_ThrowException", async () => {
 
 test("delete_VpcNotFound_ThrowException", async () => {
     //given
-    //TODO NGY - add assert if exists == false
 
     //when
     await expect(vpcHelper.delete("VPC_TEST_NOT_FOUND")).rejects.toThrow(VpcNotFoundException);
@@ -66,16 +75,44 @@ test("delete_VpcNotFound_ThrowException", async () => {
     //Exception is thrown
 });
 
+test("delete_NotDeletable_ThrowException", async () => {
+    //given
+    if(!(await vpcHelper.exists(vpcName))){
+        await vpcHelper.create(vpcName, vpcCidr)
+    }
+    if(!(await igwHelper.exists(igwName))){
+        await igwHelper.create(igwName)
+    }
+    await igwHelper.attach(igwName, vpcName)
+    //when
+    await expect(vpcHelper.delete(vpcName)).rejects.toThrow(VpcNotDeletableException);
+
+    //then
+    //Exception is thrown
+});
+
+//TODO need add this exception ? we don't know how do that
+/*test("delete_LimitExceeded_ThrowException", async () => {
+    //given
+
+    //when
+    await expect(vpcHelper.create(vpcName, vpcCidr)).rejects.toThrow(VpcLimitExceededException);
+
+    //then
+    //Exception is thrown
+});*/
+
 afterAll(async () => {
-    //TODO NGY test if the vpc exists before delete attempt (avoid throwing an exception)
+    if(await igwHelper.exists(igwName)){
+        await igwHelper.detach(igwName)
+        igwHelper.delete(igwName)
+    }
     if(await vpcHelper.exists("VPC_TEST_NOT_DELETABLE")){
         vpcHelper.delete("VPC_TEST_NOT_DELETABLE");
     }
     if(await vpcHelper.exists("VPC_TEST")){
         vpcHelper.delete("VPC_TEST");
     }
+    
 });
-
-//TODO Ajouter le test de notDeletable
-//TODO Ajouter le test de vpcExceededLimit
 

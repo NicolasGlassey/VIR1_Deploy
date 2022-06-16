@@ -11,8 +11,6 @@ const IgwHelper = require("../igw/IgwHelper.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNameNotAvailableException = require("../igw/IgwNameNotAvailableException.js");
 
-//TODO NGY add Before Each function (igwName, igw)
-
 let igwHelper = null;
 let igwName = "";
 
@@ -40,6 +38,7 @@ test('create_CreateIgw_Success', async() => {
 
     // then
     //test if exists using the igw name
+    expect(await igwHelper.exists(igwName)).toEqual(true);
 })
 
 test('exists_NominalCase_Success', async() => {

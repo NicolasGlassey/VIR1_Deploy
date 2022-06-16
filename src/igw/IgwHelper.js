@@ -99,7 +99,6 @@ module.exports = class IgwHelper {
     */
     async state(igwName){        
         let response = await this.find(igwName);
-        console.log(response)
         if(response.Attachments[0] !== undefined){
             return attached
         }
@@ -163,7 +162,12 @@ module.exports = class IgwHelper {
     * @exception IgwNotFoundException is thrown when attempts to delete non-existent Igw 
     * @param {string} name 
     */
-    async delete(name){
+    async delete(name, isForced = false){
+
+      if(isForced){
+        if(await this.state(name) === attached) await this.detach(name)
+      }
+
       let id = await this.findId(name);
       if(id === null) throw new IgwNotFoundException();
 

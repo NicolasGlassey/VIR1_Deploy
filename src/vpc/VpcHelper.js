@@ -11,8 +11,7 @@ const config = require('../config');
 
 const VpcNotFoundException = require("./VpcNotFoundException");
 const VpcNameNotAvailableException = require("./VpcNameNotAvailableException");
-//TODO ajouter la vérification de limite
-const VpcExceedLimitException = require("./VpcExceedLimitException");
+const VpcLimitExceededException  = require("./VpcLimitExceededException ");
 const VpcNotDeletableException = require("./VpcNotDeletableException");
 
 module.exports = class VpcHelper {
@@ -63,16 +62,12 @@ module.exports = class VpcHelper {
      */
     async delete(name) {
         if (await this.exists(name) === false) throw new VpcNotFoundException();
-        try {
-            return this.#client.send(new DeleteVpcCommand({
-                    VpcId: await this.findId(name)
-                }
-            ));
-        }catch (err) {
-            if (err.code === "DependencyViolation") {
-                throw new VpcNotDeletableException();
+        if (await this.isAttached(name) === true) throw new VpcNotDeletableException();
+        return this.#client.send(new DeleteVpcCommand({
+                VpcId: await this.findId(name)
             }
-        }
+        ));
+
 
     }
 
