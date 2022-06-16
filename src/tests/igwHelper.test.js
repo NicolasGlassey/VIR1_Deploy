@@ -40,6 +40,7 @@ test('create_CreateIgw_Success', async() => {
 
     // then
     //test if exists using the igw name
+    expect(await igwHelper.exists(igwName)).toEqual(true);
 })
 
 test('exists_NominalCase_Success', async() => {
