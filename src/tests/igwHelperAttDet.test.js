@@ -77,11 +77,7 @@ test("attach_IgwNotExist_ThrowException", async () => {
 
 test("attach_IgwOrVpcAlreadyAttach_ThrowException", async () => {
     //Given
-    //TODO est de que le vpc exists
-    //TODO est ce que le igw exists
     await igwHelper.attach(igwName, vpcName)
-    //TODO est ce que le igw est attaché
-    
 
     //When
     expect(igwHelper.attach(igwName, vpcName)).rejects.toThrow(IgwAttachmentException)

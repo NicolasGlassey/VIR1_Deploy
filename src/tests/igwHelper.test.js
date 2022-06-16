@@ -11,8 +11,6 @@ const IgwHelper = require("../igw/IgwHelper.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNameNotAvailableException = require("../igw/IgwNameNotAvailableException.js");
 
-//TODO NGY add Before Each function (igwName, igw)
-
 let igwHelper = null;
 let igwName = "";
 
