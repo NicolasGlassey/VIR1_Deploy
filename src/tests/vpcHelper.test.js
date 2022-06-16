@@ -103,15 +103,16 @@ test("delete_NotDeletable_ThrowException", async () => {
 });*/
 
 afterAll(async () => {
+    if(await igwHelper.exists(igwName)){
+        await igwHelper.detach(igwName)
+        igwHelper.delete(igwName)
+    }
     if(await vpcHelper.exists("VPC_TEST_NOT_DELETABLE")){
         vpcHelper.delete("VPC_TEST_NOT_DELETABLE");
     }
     if(await vpcHelper.exists("VPC_TEST")){
         vpcHelper.delete("VPC_TEST");
     }
-    if(await igwHelper.exists(igwName)){
-        await igwHelper.detach(igwName)
-        igwName.delete(igwName)
-    }
+    
 });
 
