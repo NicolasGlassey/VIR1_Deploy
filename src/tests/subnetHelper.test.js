@@ -70,7 +70,7 @@ test("create_NameNotAvailable_ThrowException", async () => {
         await vpcHelper.create(vpcName, vpcCidr);
         await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
     }
-    
+
     // when
     await expect(subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone)).rejects.toThrow(SubnetNameNotAvailableException);
 
@@ -84,7 +84,9 @@ test("create_NameNotAvailable_ThrowException", async () => {
  */
 test("delete_NotFound_ThrowException", async () => {
     // given
-    //TODO NGY - add exists to check the context
+    if(subnetHelper.exists(subnetName)){
+        await subnetHelper.delete(subnetName);
+    }
 
     // when
     await expect(subnetHelper.delete(subnetName)).rejects.toThrow(SubnetNotFoundException);
