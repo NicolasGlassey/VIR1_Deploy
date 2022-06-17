@@ -111,17 +111,12 @@ test("delete_NominalCase_Success", async () => {
 })
 
 afterEach(async () => {
-    //TODO NGY - never use try catch in test class -> if exists
-    try {
+    if(await subnetHelper.exists(subnetName))
+    {
         await subnetHelper.delete(subnetName);
-    } catch (e) {
-        // do nothing
     }
-
-    //TODO NGY - never use try catch in test class -> if exists
-    try {
+    if (await vpcHelper.exists(vpcName))
+    {
         await vpcHelper.delete(vpcName);
-    } catch (e) {
-        // do nothing
     }
 })
