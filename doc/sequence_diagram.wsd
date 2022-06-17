@@ -2,41 +2,97 @@
 
 title Scénario complet déploiement
 
-Main -> VpcHelper : Create(Name, Cidr, RessourceType = "VPC")
+Main --> VpcHelper : Create(Name, Cidr, RessourceType = "VPC")
 
 VpcHelper --> Core : Exist(Name)
 
 alt Success
-
-    VpcHelper <- Core : Vpc not exist
-    VpcHelper -> Main : Vpc created
-
-else Failure
-
+    
     VpcHelper <- Core : Exception
     VpcHelper -> Main : Exception
 
+else Failure
+     
+    VpcHelper <- Core : Vpc not exist
+    VpcHelper -> Main : Vpc created
+
 end
 
-
-Main -> IgwHelper : Create(Name, Cidr, RessourceType = "Internet-gateway")
+Main --> IgwHelper : Create(Name, Cidr, RessourceType = "Internet-gateway")
 
 IgwHelper --> Core : Exist(Name)
 
 alt Success
+    
+    IgwHelper <- Core : Exception
+    IgwHelper -> Main : Exception
+
+else Failure
 
     IgwHelper <- Core : Igw not exist
     IgwHelper -> Main : Igw created
 
+end
+
+Main --> IgwHelper : Attach(igwName, vpcName)
+
+alt Success
+
+    IgwHelper -> Main : Igw attached
+
 else Failure
 
-    IgwHelper <- Core : Exception
     IgwHelper -> Main : Exception
 
 end
 
-Main -> IgwHelper : Attach(igwName, vpcName)
+Main --> SubnetHelper : Create(subnetName, vpcName, cidr, availabilityZone, RessourceType = "Subnet")
 
+SubnetHelper --> Core : Exist(Name)
 
+alt Success
+
+    SubnetHelper <- Core : Exception
+    SubnetHelper -> Main : Exception
+
+else Failure
+
+    SubnetHelper <- Core : Subnet not exist
+    SubnetHelper -> Main : Subnet created
+
+end
+
+Main --> RouteTableHelper : Create(routeTableName, vpcName, RessourceType = "RouteTable")
+
+RouteTableHelper --> Core : Exist(Name)
+
+alt Success
+    
+    RouteTableHelper <- Core : Exception
+    RouteTableHelper -> Main : Exception
+
+else Failure
+
+    RouteTableHelper <- Core : RouteTable not exist
+
+    RouteTableHelper -> Main : RouteTable created
+
+end
+
+Main --> RouteTableHelper : Attach(routeTableName, subnetName)
+
+RouteTableHelper --> Core : Exist(vpcName)
+
+alt Success
+    
+    RouteTableHelper <- Core : Vpc Exists
+    RouteTableHelper -> Main : Vpc Attached
+
+else Failure
+
+    RouteTableHelper <- Core : Exception
+    RouteTableHelper -> Main : Exception
+
+end
 
 @enduml
