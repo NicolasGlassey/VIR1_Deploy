@@ -30,10 +30,12 @@ beforeEach(() => {
 
 test("exists_Found_Success", async () => {
     // given
-    await vpcHelper.create(vpcName, vpcCidr);
-    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
-    //TODO NGY - add exists to check the context
 
+    if(!vpcHelper.exists(vpcName) && !subnetHelper.exists(subnetName))
+    {
+        await vpcHelper.create(vpcName, vpcCidr);
+        await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+    }
     // when
 
     // then
