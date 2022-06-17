@@ -31,7 +31,7 @@ beforeEach(() => {
 test("exists_Found_Success", async () => {
     // given
 
-    if(!vpcHelper.exists(vpcName) && !subnetHelper.exists(subnetName))
+    if( !await vpcHelper.exists(vpcName) && !await subnetHelper.exists(subnetName))
     {
         await vpcHelper.create(vpcName, vpcCidr);
         await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
@@ -54,7 +54,7 @@ test("exists_NotFound_Success", async () => {
 
 test("create_NominalCase_Success", async () => {
     // given
-    if(!vpcHelper.exists(vpcName)){
+    if(!await vpcHelper.exists(vpcName)){
         await vpcHelper.create(vpcName, vpcCidr);
     }
     // when
@@ -66,7 +66,7 @@ test("create_NominalCase_Success", async () => {
 
 test("create_NameNotAvailable_ThrowException", async () => {
     // given
-    if(!vpcHelper.exists(vpcName) && !subnetHelper.exists(subnetName)) {
+    if(!await vpcHelper.exists(vpcName) && !await subnetHelper.exists(subnetName)) {
         await vpcHelper.create(vpcName, vpcCidr);
         await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
     }
@@ -84,7 +84,7 @@ test("create_NameNotAvailable_ThrowException", async () => {
  */
 test("delete_NotFound_ThrowException", async () => {
     // given
-    if(subnetHelper.exists(subnetName)){
+    if(await subnetHelper.exists(subnetName)){
         await subnetHelper.delete(subnetName);
     }
 
