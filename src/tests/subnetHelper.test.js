@@ -54,7 +54,6 @@ test("exists_NotFound_Success", async () => {
 
 test("create_NominalCase_Success", async () => {
     // given
-    //TODO NGY - add exists to check the context
     if(!vpcHelper.exists(vpcName)){
         await vpcHelper.create(vpcName, vpcCidr);
     }
