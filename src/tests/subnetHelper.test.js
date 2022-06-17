@@ -28,9 +28,18 @@ beforeEach(() => {
     availabilityZone = "eu-west-3a";
 })
 
-/**
- * @brief Test if the subnet exists
- */
+test("exists_Found_Success", async () => {
+    // given
+    await vpcHelper.create(vpcName, vpcCidr);
+    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+    //TODO NGY - add exists to check the context
+
+    // when
+
+    // then
+    expect(await subnetHelper.exists(subnetName)).toEqual(true);
+})
+
 test("exists_NotFound_Success", async () => {
     // given
     // refer to before each method
@@ -41,47 +50,29 @@ test("exists_NotFound_Success", async () => {
     expect(await subnetHelper.exists(subnetName)).toEqual(false);
 })
 
-/**
- * @brief Test if the subnet exists
- */
-test("exists_Found_Success", async () => {
-    // given
-    await vpcHelper.create(vpcName, vpcCidr);
-    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
-
-    // when
-
-    // then
-    expect(await subnetHelper.exists(subnetName)).toEqual(true);
-})
-
-/**
- * @brief Test if the subnet can be created
- */
 test("create_NominalCase_Success", async () => {
     // given
+    //TODO NGY - add exists to check the context
+    await vpcHelper.create(vpcName, vpcCidr);
 
     // when
-    await vpcHelper.create(vpcName, vpcCidr);
     await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
 
     // then
     expect(await subnetHelper.exists(subnetName)).toEqual(true);
 })
 
-/**
- * @brief Test if the subnet already has been created
- * @exception SubnetNameNotAvailableException
- */
 test("create_NameNotAvailable_ThrowException", async () => {
     // given
     await vpcHelper.create(vpcName, vpcCidr);
     await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+    //TODO NGY - add exists to check the context
 
     // when
+    await expect(subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone)).rejects.toThrow(SubnetNameNotAvailableException);
 
     // then
-    await expect(subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone)).rejects.toThrow(SubnetNameNotAvailableException);
+    // Exception thrown
 })
 
 /**
@@ -90,11 +81,13 @@ test("create_NameNotAvailable_ThrowException", async () => {
  */
 test("delete_NotFound_ThrowException", async () => {
     // given
+    //TODO NGY - add exists to check the context
 
     // when
+    await expect(subnetHelper.delete(subnetName)).rejects.toThrow(SubnetNotFoundException);
 
     // then
-    await expect(subnetHelper.delete(subnetName)).rejects.toThrow(SubnetNotFoundException);
+    // Exception thrown
 })
 
 /**
@@ -113,15 +106,17 @@ test("delete_NominalCase_Success", async () => {
 })
 
 afterEach(async () => {
+    //TODO NGY - never use try catch in test class -> if exists
     try {
         await subnetHelper.delete(subnetName);
     } catch (e) {
         // do nothing
     }
+
+    //TODO NGY - never use try catch in test class -> if exists
     try {
         await vpcHelper.delete(vpcName);
     } catch (e) {
         // do nothing
     }
-
 })
