@@ -1,7 +1,7 @@
 /**
  * @file      igw.test.js
  * @brief     This class is designed to test the behaviour of an IGW (Internet Gateway).
- * @author    Mélodie Ohan
+ * @author    Cyril Goldenschue
  * @version   11-05-2022 - original (dedicated to VIR1)
  *
  */
@@ -53,7 +53,6 @@ test("attach_NominalCase_Success", async () => {
 
 test("detach_NominalCase_Success", async () => {
     //Given
-
     await igwHelper.attach(igwName, vpcName)
     expect(await igwHelper.state(igwName)).toEqual("attached")
 
