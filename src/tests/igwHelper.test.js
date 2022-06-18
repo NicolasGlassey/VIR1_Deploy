@@ -86,8 +86,7 @@ test('all_GetListOfAllIgw_Success', async() => {
     await igwHelper.delete(igwName);
 
     // then
-    let id = await igwHelper.findId(igwHelper);
-    expect(id).toEqual(null);
+    expect(await igwHelper.exists(igwName)).toEqual(false);
 })
 
 /**
