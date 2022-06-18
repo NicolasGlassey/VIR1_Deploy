@@ -97,9 +97,10 @@ module.exports = class SubnetHelper {
      * @exception SubnetNotFoundException if the subnet is not found
      */
     async delete(name) {
-        if (await this.exists(name) === false) throw new SubnetNotFoundException();
+        let id = await this.findId(name);
+        if (id === null) throw new SubnetNotFoundException();
         return this.#client.send(new DeleteSubnetCommand({
-                SubnetId: await this.findId(name)
+                SubnetId: id
             }
         ));
     }
