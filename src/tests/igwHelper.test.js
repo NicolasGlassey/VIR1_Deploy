@@ -11,8 +11,7 @@ const IgwHelper = require("../igw/IgwHelper.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNameNotAvailableException = require("../igw/IgwNameNotAvailableException.js");
 
-let igwHelper = null,
-    igwName = "";
+let igwHelper, igwName;
 
 beforeAll(() => {
     igwHelper = new IgwHelper("eu-west-3");
