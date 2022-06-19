@@ -15,24 +15,18 @@ const IgwHelper = require('../igw/IgwHelper.js');
 const VpcNotDeletableException = require('../vpc/VpcNotDeletableException.js');
 const VpcLimitExceededException = require('../vpc/VpcLimitExceededException .js');
 
-let vpcHelper;
-let vpcName;
-let vpcCidr;
-let igwHelper;
-let igwName;
+let vpcHelper, vpcName, vpcCidr;
+let igwHelper, igwName;
 
 beforeAll(() => {
     igwHelper = new IgwHelper("eu-west-3")
-    igwName = "IgwDeploy"
-})
-
-beforeEach(() => {
     vpcHelper = new VpcHelper("eu-west-3");
+
+    igwName = "IgwDeploy"
+
     vpcName = "VPC_TEST";
     vpcCidr = "10.0.0.0/16";
 })
-
-
 
 test("create_NominalCase_Success", async () => {
     //given
@@ -67,9 +61,10 @@ test("create_VpcAlreadyExists_ThrowException", async () => {
 
 test("delete_VpcNotFound_ThrowException", async () => {
     //given
+    let notExistVpc = "not-exists";
 
     //when
-    await expect(vpcHelper.delete("VPC_TEST_NOT_FOUND")).rejects.toThrow(VpcNotFoundException);
+    await expect(vpcHelper.delete(notExistVpc)).rejects.toThrow(VpcNotFoundException);
 
     //then
     //Exception is thrown
@@ -91,26 +86,15 @@ test("delete_NotDeletable_ThrowException", async () => {
     //Exception is thrown
 });
 
-//TODO need add this exception ? we don't know how do that
-/*test("delete_LimitExceeded_ThrowException", async () => {
-    //given
-
-    //when
-    await expect(vpcHelper.create(vpcName, vpcCidr)).rejects.toThrow(VpcLimitExceededException);
-
-    //then
-    //Exception is thrown
-});*/
-
 afterAll(async () => {
-    if(await igwHelper.exists(igwName)){
+    if (await igwHelper.exists(igwName)){
         await igwHelper.detach(igwName)
         igwHelper.delete(igwName)
     }
-    if(await vpcHelper.exists("VPC_TEST_NOT_DELETABLE")){
+    if (await vpcHelper.exists("VPC_TEST_NOT_DELETABLE")){
         vpcHelper.delete("VPC_TEST_NOT_DELETABLE");
     }
-    if(await vpcHelper.exists("VPC_TEST")){
+    if (await vpcHelper.exists("VPC_TEST")){
         vpcHelper.delete("VPC_TEST");
     }
     
