@@ -67,10 +67,9 @@ module.exports = class RouteTable {
     }
 
     /**
-     * @brief Disassociate a route table and a subnet
+     * @brief Disassociate a route table
      * @async
      * @param {string} routeTableName
-     * @param {string} subnetName
      * @exception RouteTableNotFoundException if routeTable doesn't exist
      * @exception RouteTableAssociationNotFoundException if association doesn't exist
      */
