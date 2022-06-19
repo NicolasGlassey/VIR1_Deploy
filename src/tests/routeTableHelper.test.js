@@ -19,34 +19,29 @@ const RouteTableAlreadyExistsException = require("../routeTable/RouteTableAlread
 const RouteTableNotFoundException = require("../routeTable/RouteTableNotFoundException.js");
 
 
-  let vpcHelper, routeTableHelper, vpcName, vpcCidr, routeTableName, region, subnetName;
-
-  let subnetHelper, subnetCidr, availabilityZone;
+let vpcHelper, vpcName, vpcCidr;
+let routeTableHelper, routeTableName;
+let subnetHelper, subnetName, subnetCidr, availabilityZone;
 
 beforeAll(() => {
-    region = "eu-west-3";
-    routeTableHelper = new RouteTableHelper(region);
-    vpcHelper = new VpcHelper(region);
+    routeTableHelper = new RouteTableHelper("eu-west-3");
+    vpcHelper = new VpcHelper("eu-west-3");
+    subnetHelper = new SubnetHelper("eu-west-3");
+
     vpcName = "vpc-deploy-test";
     vpcCidr = "10.0.0.0/16";
+
     subnetCidr = "10.0.0.0/24";
-    routeTableName = "routeTable-deploy-test"
     subnetName = "subnet-deploy-test";
-    subnetHelper = new SubnetHelper(region);
     availabilityZone = "eu-west-3a";
+
+    routeTableName = "routeTable-deploy-test"
 });
 
 beforeEach(async()=>{
     if(await vpcHelper.exists(vpcName) === false) await vpcHelper.create(vpcName, vpcCidr);
     if(await routeTableHelper.exists(routeTableName) === false) await routeTableHelper.create(routeTableName, vpcName);
 })
-
-afterEach(async () => {
-    if(await subnetHelper.exists(subnetName)) await subnetHelper.delete(subnetName);
-    if(await routeTableHelper.exists(routeTableName) === true) await routeTableHelper.delete(routeTableName);
-    if(await vpcHelper.exists(vpcName) === true) await vpcHelper.delete(vpcName);
-});
-
 
 test('findId_NominalCase_Success', async() => {
     // given
@@ -61,7 +56,7 @@ test('findId_NominalCase_Success', async() => {
 
 test('findId_NonExistentRouteTable_Success', async() => {
     // given
-    let notUsedName = "NonExistentRouteTable";
+    let notExistRouteTable = "not-exist";
 
     // when
     // nothing is created
@@ -138,10 +133,10 @@ test('delete_NominalCase_Success', async() => {
 
 test("delete_RouteTableNotFound_ThrowException", async () => {
     // given
-    let NonExistentRouteTable = "non-existant";
+    let notExistRouteTable = "not-exists";
 
     //when
-    await expect(routeTableHelper.delete(NonExistentRouteTable)).rejects.toThrow(RouteTableNotFoundException);
+    await expect(routeTableHelper.delete(notExistRouteTable)).rejects.toThrow(RouteTableNotFoundException);
 
     // then
     // Exception is thrown
@@ -187,3 +182,9 @@ test('isAssociated_RouteTableDisassociated_Success', async() => {
     expect(await routeTableHelper.isAssociated(routeTableName)).toEqual(false);
 
 })
+
+afterEach(async () => {
+    if(await subnetHelper.exists(subnetName)) await subnetHelper.delete(subnetName);
+    if(await routeTableHelper.exists(routeTableName) === true) await routeTableHelper.delete(routeTableName);
+    if(await vpcHelper.exists(vpcName) === true) await vpcHelper.delete(vpcName);
+});

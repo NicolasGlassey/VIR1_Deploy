@@ -40,8 +40,6 @@ beforeAll (() => {
 
 });
 
-
-
 //region creation
 
 test("createVpc_NominalCase_Success", async () => {

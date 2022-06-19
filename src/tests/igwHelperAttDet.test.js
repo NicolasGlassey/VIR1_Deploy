@@ -17,7 +17,8 @@ const IgwAttachmentException = require("../igw/IgwAttachmentException");
 
 const VpcNotFoundException = require("../vpc/VpcNotFoundException")
 
-let igwHelper, vpcHelper, vpcName, vpcCidr, igwName;
+let igwHelper, vpcHelper;
+let vpcName, vpcCidr, igwName;
 
 beforeAll(async () => {
     vpcHelper = new VpcHelper("eu-west-3");
@@ -42,6 +43,7 @@ beforeEach(async () =>{
 
 test("attach_NominalCase_Success", async () => {
     //Given
+    // refer to before each method
     expect(await igwHelper.state(igwName)).toEqual("detached")
 
     //When
@@ -53,6 +55,7 @@ test("attach_NominalCase_Success", async () => {
 
 test("detach_NominalCase_Success", async () => {
     //Given
+    // refer to before each method
     await igwHelper.attach(igwName, vpcName)
     expect(await igwHelper.state(igwName)).toEqual("attached")
 
@@ -65,10 +68,11 @@ test("detach_NominalCase_Success", async () => {
 
 test("attach_IgwNotExist_ThrowException", async () => {
     //Given
-    let igwNameNotExist = "Deploy-NotExist"
+    // refer to before each method
+    let notExistIgw = "not-exists"
 
     //When
-    expect(igwHelper.attach(igwNameNotExist, vpcName)).rejects.toThrow(IgwNotFoundException)
+    expect(igwHelper.attach(notExistIgw, vpcName)).rejects.toThrow(IgwNotFoundException)
 
     //Then
     //Exception is thrown
@@ -76,6 +80,7 @@ test("attach_IgwNotExist_ThrowException", async () => {
 
 test("attach_IgwOrVpcAlreadyAttach_ThrowException", async () => {
     //Given
+    // refer to before each method
     await igwHelper.attach(igwName, vpcName)
 
     //When
@@ -87,15 +92,25 @@ test("attach_IgwOrVpcAlreadyAttach_ThrowException", async () => {
 
 test("attach_VpcNotFound_ThrowException", async () => {
     //Given
-    let fakeIgwName = "Vpc_Not_Exist";
-    // When, Then
+    // refer to before each method
+    let notExistVpc = "not-exists";
 
-    expect(igwHelper.attach(igwName, fakeIgwName)).rejects.toThrow(VpcNotFoundException)
+    // When
+    expect(igwHelper.attach(igwName, notExistVpc)).rejects.toThrow(VpcNotFoundException)
+
+    //Then
+    //Exception is thrown
 });
 
 test("detach_IgwNotAttached_ThrowException", async () => {
-    //Given, When,Then
+    //Given
+    // refer to before each method
+    
+    //When
     expect(igwHelper.detach(igwName, vpcName)).rejects.toThrow(IgwNotAttachedException)
+
+    //Then
+    //Exception is thrown
 });
 
 afterAll(async () =>{

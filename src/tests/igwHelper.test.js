@@ -11,10 +11,9 @@ const IgwHelper = require("../igw/IgwHelper.js");
 const IgwNotFoundException = require("../igw/IgwNotFoundException.js");
 const IgwNameNotAvailableException = require("../igw/IgwNameNotAvailableException.js");
 
-let igwHelper = null;
-let igwName = "";
+let igwHelper, igwName;
 
-beforeEach(() => {
+beforeAll(() => {
     igwHelper = new IgwHelper("eu-west-3");
     igwName = "myIgwName";
 });
@@ -71,7 +70,6 @@ test('all_GetListOfAllIgw_Success', async() => {
     let list = await igwHelper.all();
 
     // then
-    //TODO NGY - what's the purpose of the assertion ?
     expect(list.length).not.toEqual(0);
 })
 
@@ -81,6 +79,7 @@ test('all_GetListOfAllIgw_Success', async() => {
  */
  test('delete_NominalCase_Success', async () => {
     // given
+    // refer to before each method
 
     // when
     await igwHelper.delete(igwName);
@@ -95,10 +94,10 @@ test('all_GetListOfAllIgw_Success', async() => {
  */
  test('delete_deleteNonExistentIgw_ThrowException', async () => {
     // given
-    igwName = "Igw-test-deploy-100";
+    let notExistIgw = "not-exists";
 
     // when
-    await expect(igwHelper.delete(igwName)).rejects.toThrow(IgwNotFoundException);
+    await expect(igwHelper.delete(notExistIgw)).rejects.toThrow(IgwNotFoundException);
 
     // then
      // Exception is thrown
