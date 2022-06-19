@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.92.0",
+    "jsdocs": "^1.0.0",
     "uuid": "^8.3.2"
   },
   "name": "aws-nodejs-sample",
@@ -11,8 +12,9 @@
   "version": "1.0.1",
   "main": "sample.js",
   "scripts": {
-    "test": "jest"
-  },
+    "test": "jest",
+    "doc": "jsdoc -c jsdoc.json"
+ },
   "author": "Mélodie Ohan",
   "license": "ISC"
 }
