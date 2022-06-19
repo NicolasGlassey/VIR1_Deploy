@@ -30,7 +30,7 @@ beforeAll(() => {
     vpcCidr = "10.0.0.0/16";
 })
 
-beforeEach(() => {
+beforeEach(async () => {
     if( !await vpcHelper.exists(vpcName))
     {
         await vpcHelper.create(vpcName, vpcCidr);

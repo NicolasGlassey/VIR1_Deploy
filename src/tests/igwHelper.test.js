@@ -21,11 +21,12 @@ beforeAll(() => {
 test('exists_NotFound_Success', async() => {
     // given
     // refer to before each method
+    let notExistIgw = "not-exists";
 
     // when
 
     // then
-    expect(await igwHelper.exists(igwName)).toEqual(false);
+    expect(await igwHelper.exists(notExistIgw)).toEqual(false);
 })
 
 test('create_CreateIgw_Success', async() => {
