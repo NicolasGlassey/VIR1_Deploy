@@ -21,7 +21,7 @@ const RouteTableNotFoundException = require("../routeTable/RouteTableNotFoundExc
 
   let vpcHelper, routeTableHelper, vpcName, vpcCidr, routeTableName, region, subnetName;
 
-  let subnetHelper, availabilityZone;
+  let subnetHelper, subnetCidr, availabilityZone;
 
 beforeAll(() => {
     region = "eu-west-3";
@@ -29,6 +29,7 @@ beforeAll(() => {
     vpcHelper = new VpcHelper(region);
     vpcName = "vpc-deploy-test";
     vpcCidr = "10.0.0.0/16";
+    subnetCidr = "10.0.0.0/24";
     routeTableName = "routeTable-deploy-test"
     subnetName = "subnet-deploy-test";
     subnetHelper = new SubnetHelper(region);
