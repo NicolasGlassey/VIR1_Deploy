@@ -131,8 +131,7 @@ module.exports = class RouteTable {
             ]
         };
 
-        const command = new CreateRouteTableCommand(params);
-        const response = await this.#client.send(command);
+        await this.#client.send(new CreateRouteTableCommand(params));
     }
 
     /**
