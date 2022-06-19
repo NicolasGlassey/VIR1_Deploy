@@ -88,9 +88,7 @@ module.exports = class VpcHelper {
         };
         const describeVpcsCommand = new DescribeVpcsCommand(params);
         const vpc = await this.#client.send(describeVpcsCommand);
-        if (vpc.Vpcs.length === 0) {
-            throw new VpcNotFoundException(`Vpc ${name} not found`);
-        }
+        if (vpc.Vpcs.length === 0) return null;
         return vpc.Vpcs[0].VpcId;
     }
 
