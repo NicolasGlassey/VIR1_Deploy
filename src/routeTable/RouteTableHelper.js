@@ -31,11 +31,10 @@ module.exports = class RouteTable {
     #client;
     #vpcHelper;
     #subnetHelper;
-
     //endregion private attributes
 
     /**
-     * Constructor
+     * @constructor
      * @param {string} region
      */
     constructor(region) {
@@ -46,14 +45,15 @@ module.exports = class RouteTable {
 
     /**
      * @brief Associate a route table with a subnet
+     * @async
      * @param {string} routeTableName
      * @param {string} subnetName
      * @exception RouteTableNotFoundException if routeTable doesn't exist
      * @exception SubnetNotFoundException if subnet doesn't exist
      */
     async associate(routeTableName, subnetName) {
-        let routeTableId = await this.findId(routeTableName);
-        let subnetId = await this.#subnetHelper.findId(subnetName);
+        let routeTableId = await this.findId(routeTableName),
+            subnetId = await this.#subnetHelper.findId(subnetName);
 
         if (routeTableId === null) throw new RouteTableNotFoundException();
         if (subnetId === null) throw new SubnetNotFoundException();
@@ -68,6 +68,7 @@ module.exports = class RouteTable {
 
     /**
      * @brief Disassociate a route table and a subnet
+     * @async
      * @param {string} routeTableName
      * @param {string} subnetName
      * @exception RouteTableNotFoundException if routeTable doesn't exist
@@ -87,6 +88,7 @@ module.exports = class RouteTable {
 
     /**
      * @brief Verify if the route table is associated to a subnet
+     * @async
      * @param {string} name
      * @exception RouteTableNotFoundException
      * @returns true if it is associated
@@ -105,6 +107,7 @@ module.exports = class RouteTable {
 
     /**
      * @brief create a route table associated with a vpc.
+     * @async
      * @param {string} routeTableName
      * @param {string} vpcName
      * @param {string} resourceType
@@ -136,6 +139,7 @@ module.exports = class RouteTable {
 
     /**
      * @brief Delete a route table by it's name
+     * @async
      * @param {string} name
      * @exception RouteTableNotFoundException if the route table doesn't exists
      */
@@ -147,12 +151,12 @@ module.exports = class RouteTable {
             RouteTableId: id
         };
 
-        const command = new DeleteRouteTableCommand(params);
-        await this.#client.send(command);
+        await this.#client.send(new DeleteRouteTableCommand(params));
     }
 
     /**
      * @brief Verify if a route table exists by it's name
+     * @async
      * @param {string} name
      * @returns true if route table exists
      */
@@ -162,6 +166,7 @@ module.exports = class RouteTable {
 
     /**
      * @brief Find a route table id by its name
+     * @async
      * @param {string} name
      * @returns id or null
      */
@@ -174,14 +179,14 @@ module.exports = class RouteTable {
                 },
             ],
         };
-        const command = new DescribeRouteTablesCommand(params);
-        const routeTable = await this.#client.send(command);
+        const routeTable = await this.#client.send(new DescribeRouteTablesCommand(params));
         if (routeTable.RouteTables.length === 0) return null;
         return routeTable.RouteTables[0].RouteTableId;
     }
 
     /**
      * @brief Find a associationId by its name
+     * @async
      * @param {string} name
      * @returns associationId or null
      */
@@ -194,8 +199,7 @@ module.exports = class RouteTable {
                 },
             ],
         };
-        const command = new DescribeRouteTablesCommand(params);
-        const routeTable = await this.#client.send(command);
+        const routeTable = await this.#client.send(new DescribeRouteTablesCommand(params));
         if (routeTable.RouteTables.length === 0) return null;
         return routeTable.RouteTables[0].Associations[0].RouteTableAssociationId;
     }

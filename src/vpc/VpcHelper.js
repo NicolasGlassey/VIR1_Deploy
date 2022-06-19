@@ -15,14 +15,22 @@ const VpcNotDeletableException = require("./VpcNotDeletableException");
 
 module.exports = class VpcHelper {
 
-    #client;
+    //region private attributes
+    #client; 
+    //endregion private attributes
+    
 
+    /**
+     * @constructor
+     * @param {string} region
+     */
     constructor(region) {
         this.#client = new EC2Client({ region: region });
     }
 
     /**
      * @brief This method creates an vpc in aws asynchronously
+     * @async
      * @param {string} name - the name of the vpc
      * @param {string} vpcCidrBlock - the cidr block of the vpc
      * @exception EC2Client.VpcExceedLimitException the limit of vpcs is exceeded
@@ -55,6 +63,7 @@ module.exports = class VpcHelper {
 
     /**
      * @brief This method deletes a vpc
+     * @async
      * @param {string} name - the name of the vpc
      * @exception VpcNotFoundException if the vpc is not found
      * @exception VpcNotDeletableException the vpc is attached and we can't delete
@@ -62,16 +71,19 @@ module.exports = class VpcHelper {
     async delete(name) {
         if (await this.exists(name) === false) throw new VpcNotFoundException();
         if (await this.isAttached(name) === true) throw new VpcNotDeletableException();
-        return this.#client.send(new DeleteVpcCommand({
-                VpcId: await this.findId(name)
+        let vpcId = await this.findId(name),
+            params = {
+                VpcId: vpcId
             }
-        ));
+
+        await this.#client.send(new DeleteVpcCommand(params));
 
 
     }
 
     /**
      * @brief This method returns the vpc id of the vpc with the given name
+     * @async
      * @param {string} name - the name of the vpc
      * @returns vpc id
      */
@@ -86,14 +98,14 @@ module.exports = class VpcHelper {
                 }
             ]
         };
-        const describeVpcsCommand = new DescribeVpcsCommand(params);
-        const vpc = await this.#client.send(describeVpcsCommand);
+        const vpc = await this.#client.send(new DescribeVpcsCommand(params));
         if (vpc.Vpcs.length === 0) return null;
         return vpc.Vpcs[0].VpcId;
     }
 
     /**
-     * @brief This method check if the vpc exists
+     * @brief This method check if the vpc exists 
+     * @async
      * @param {string} name - the name of the vpc
      * @returns a bool if vpc exists
      */
@@ -108,13 +120,13 @@ module.exports = class VpcHelper {
                 }
             ]
         };
-        const describeVpcsCommand = new DescribeVpcsCommand(params);
-        const vpc = await this.#client.send(describeVpcsCommand);
+        const vpc = await this.#client.send(new DescribeVpcsCommand(params));
         return vpc.Vpcs.length !== 0;
     }
 
     /**
      * @brief This method check if the vpc has dependencies attached
+     * @async
      * @param {string} name - the name of the vpc
      * @returns the vpc attachment state
      */
@@ -132,8 +144,8 @@ module.exports = class VpcHelper {
             ],
         };
 
-        const command = new DescribeInternetGatewaysCommand(params);
-        const response = await this.#client.send(command);
+        const response = await this.#client.send(new DescribeInternetGatewaysCommand(params));
+        
         let igw = response.InternetGateways[0]
         return igw !== undefined;
     }
