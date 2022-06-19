@@ -151,10 +151,7 @@ module.exports = class IgwHelper {
          ],
        };
 
-      const command = new CreateInternetGatewayCommand(params);
-      const response = await this.#client.send(command);
-      if(response === undefined) return null;
-      return response.InternetGateway.InternetGatewayId;
+       await this.#client.send(new CreateInternetGatewayCommand(params));
      }
 
    /**
