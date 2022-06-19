@@ -88,8 +88,7 @@ module.exports = class SubnetHelper {
                 }
             ]
         }
-        const createSubnetCommand = new CreateSubnetCommand(params);
-        return await this.#client.send(createSubnetCommand);
+        await this.#client.send(new CreateSubnetCommand(params));
     }
 
     /**
