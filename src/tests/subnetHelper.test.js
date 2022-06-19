@@ -84,12 +84,10 @@ test("create_NameNotAvailable_ThrowException", async () => {
  */
 test("delete_NotFound_ThrowException", async () => {
     // given
-    if(await subnetHelper.exists(subnetName)){
-        await subnetHelper.delete(subnetName);
-    }
+    let NonExistentSubnet = "non-existant";
 
     // when
-    await expect(subnetHelper.delete(subnetName)).rejects.toThrow(SubnetNotFoundException);
+    await expect(subnetHelper.delete(NonExistentSubnet)).rejects.toThrow(SubnetNotFoundException);
 
     // then
     // Exception thrown

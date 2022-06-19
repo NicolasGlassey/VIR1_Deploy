@@ -54,6 +54,7 @@ module.exports = class SubnetHelper {
         }
         const describeSubnetsCommand = new DescribeSubnetsCommand(params);
         const subnet = await this.#client.send(describeSubnetsCommand);
+        if (subnet.Subnets.length === 0) return null;
         return subnet.Subnets[0].SubnetId;
     }
 
@@ -99,6 +100,7 @@ module.exports = class SubnetHelper {
     async delete(name) {
         let id = await this.findId(name);
         if (id === null) throw new SubnetNotFoundException();
+        
         return this.#client.send(new DeleteSubnetCommand({
                 SubnetId: id
             }
