@@ -144,14 +144,13 @@ test('isAssociated_NoAssociation_Success', async() => {
 
 test('isAssociated_RouteTableAssociated_Success', async() => {
     // given
-    // refer to beforeAll method
-  
-    // refer to beforeEach method
-    await subnetHelper.create(subnetName, vpcName, vpcCidr, availabilityZone);
+    // refer to beforeEach and beforeAll methods
+
+    if(await subnetHelper.exists(subnetName) === false) await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+
+    if (await routeTableHelper.isAssociated(routeTableName) === false) await routeTableHelper.associate(routeTableName, subnetName);
 
     // when
-    await routeTableHelper.associate(routeTableName, subnetName);
-
-    // then
     expect(await routeTableHelper.isAssociated(routeTableName)).toEqual(true);
+
 })
