@@ -103,7 +103,17 @@ test('create_NominalCase_Success', async() => {
     expect(await routeTableHelper.exists(routeTableName)).toEqual(true)
 })
 
-  
+test("cerate_RouteTableAlreadyExists_ThrowException", async () => {
+        // given
+        //refer to beforeEach method
+
+        // when
+        await expect(routeTableHelper.create(routeTableName, vpcName)).rejects.toThrow(RouteTableAlreadyExistsException);
+    
+        // then
+        // Exception is thrown
+})
+
 test('create_VpcDoesNotExist_ThrowException', async() => {
     // given
     let nonExistentVpc = "non-existent";
@@ -115,7 +125,7 @@ test('create_VpcDoesNotExist_ThrowException', async() => {
     // Exception is thrown
 })
   
-test('delete_Disassociate_Success', async() => {
+test('delete_NominalCase_Success', async() => {
     // given
     // refer to beforeEach and beforeAll methods
 
@@ -124,6 +134,17 @@ test('delete_Disassociate_Success', async() => {
 
     // then
     expect(await routeTableHelper.exists(routeTableName)).toEqual(false)
+})
+
+test("delete_RouteTableNotFound_ThrowException", async () => {
+    // given
+    let NonExistentRouteTable = "non-existant";
+
+    //when
+    await expect(routeTableHelper.delete(NonExistentRouteTable)).rejects.toThrow(RouteTableNotFoundException);
+
+    // then
+    // Exception is thrown
 })
 
 test('isAssociated_NoAssociation_Success', async() => {
@@ -150,5 +171,19 @@ test('isAssociated_RouteTableAssociated_Success', async() => {
 
     // when
     expect(await routeTableHelper.isAssociated(routeTableName)).toEqual(true);
+
+})
+
+test('isAssociated_RouteTableDisassociated_Success', async() => {
+    // given
+    // refer to beforeEach and beforeAll methods
+
+    if(await subnetHelper.exists(subnetName) === false) await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+
+    await routeTableHelper.associate(routeTableName, subnetName);
+
+    await routeTableHelper.disassociate(routeTableName, subnetName);
+    // when
+    expect(await routeTableHelper.isAssociated(routeTableName)).toEqual(false);
 
 })
