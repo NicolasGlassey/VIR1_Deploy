@@ -49,7 +49,6 @@ module.exports = class IgwHelper {
             if (await this.exists(igwName)) {
                 let igw = await this.find(igwName)
                 let vpcId = await this.#vpcHelper.findId(vpcName)
-                //TODO à voir en review
                 if (await this.state(igwName) === detached || !(await this.#vpcHelper.isAttached(vpcName))) {
 
                   await this.#client.send(new AttachInternetGatewayCommand(
@@ -164,6 +163,7 @@ module.exports = class IgwHelper {
     * @async
     * @exception IgwNotFoundException is thrown when attempts to delete non-existent Igw 
     * @param {string} name 
+    * @param {boolean} isForced allow to delete an igw attached
     */
     async delete(name, isForced = false){
 
