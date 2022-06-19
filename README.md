@@ -62,6 +62,9 @@ Run only one test
  npm run test [className.test.js]
 ```
 
+## Documentation 
+Refer to [wiki of the project](https://github.com/CyrilGoldenschue/VIR1_Deploy/wiki#generate-documentation)
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
