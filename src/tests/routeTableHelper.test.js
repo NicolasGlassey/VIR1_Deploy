@@ -128,12 +128,15 @@ test('delete_Deasassociated_Success', async() => {
     expect(await routeTableHelper.exists(routeTableName)).toEqual(false)
 })
 
-test('isAssociated_RouteTableNotAssociated_Success', async() => {
+test('isAssociated_NoAssociation_Success', async() => {
     // given
     // refer to beforeEach and beforeAll methods
 
+    if(await subnetHelper.exists(subnetName) === false) await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
+
+    if (await routeTableHelper.isAssociated(routeTableName) === true) await routeTableHelper.disassociate(routeTableName, subnetName);
+
     // when
-    let isAssociated = routeTableHelper.isAssociated(routeTableName);
 
     // then
     expect(await routeTableHelper.isAssociated(routeTableName)).toEqual(false);
