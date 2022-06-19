@@ -85,54 +85,30 @@ test("createSubnet_NominalCase_Success", async () => {
     expect(await subnetHelper.exists(subnetName)).toEqual(true);
 })
 
-
-
-//TODO routeTable
 test("createRouteTable_NominalCase_Success", async () => {
     // given
 
     // when
-    await routeTableHelper.create(routeTableName);
+    await routeTableHelper.create(routeTableName, vpcName);
 
     // then
     expect(await routeTableHelper.exists(routeTableName)).toEqual(true);
 })
+
+test("associatedRouteTable_NominalCase", async () => {
+    // given
+
+    // when
+    await routeTableHelper.associate(routeTableName, subnetName);
+
+    // then
+    expect(await routeTableHelper.isAssociated(routeTableName)).toEqual(true);
+})
+
 //endregion creation
 
 
-
-
-
-
-
-
-
-
-
 //region delete
-//TODO vérifier l'ordre
-//TODO routeTable
-test("deleteRouteTable_NominalCase_Success", async () => {
-    // given
-
-    // when
-    await routeTableHelper.delete(routeTableName);
-
-    // then
-    expect(await routeTableHelper.exists(routeTableName)).toEqual(false);
-})
-
-
-
-test("deleteSubnet_NominalCase_Success", async () => {
-    // given
-
-    // when
-    await subnetHelper.delete(subnetName);
-
-    // then
-    expect(await subnetHelper.exists(subnetName)).toEqual(false);
-})
 
 test("detach_NominalCase_Success", async () => {
     //Given
@@ -145,6 +121,26 @@ test("detach_NominalCase_Success", async () => {
     expect(await igwHelper.state(igwName)).toEqual("detached")
 });
 
+test("disassociatedRouteTable_NominalCase", async () => {
+    // given
+
+    // when
+    await routeTableHelper.disassociate(routeTableName, subnetName);
+
+    // then
+    expect(await routeTableHelper.isAssociated(routeTableName)).toEqual(false);
+})
+
+test("deleteSubnet_NominalCase_Success", async () => {
+    // given
+
+    // when
+    await subnetHelper.delete(subnetName);
+
+    // then
+    expect(await subnetHelper.exists(subnetName)).toEqual(false);
+})
+
 test('deleteIgw_NominalCase_Success', async () => {
     // given
 
@@ -153,6 +149,16 @@ test('deleteIgw_NominalCase_Success', async () => {
 
     // then
     expect(await igwHelper.exists(igwName)).toEqual(false);
+})
+
+test("deleteRouteTable_NominalCase_Success", async () => {
+    // given
+
+    // when
+    await routeTableHelper.delete(routeTableName);
+
+    // then
+    expect(await routeTableHelper.exists(routeTableName)).toEqual(false);
 })
 
 test("deleteVpc_NominalCase_Success", async () => {
@@ -164,4 +170,6 @@ test("deleteVpc_NominalCase_Success", async () => {
     //then
     expect(await vpcHelper.exists(vpcName)).toEqual(false);
 });
+
+
 //endregion delete
