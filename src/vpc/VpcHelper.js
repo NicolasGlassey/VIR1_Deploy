@@ -37,9 +37,8 @@ module.exports = class VpcHelper {
      * @exception VpcNameNotAvailableException the name choose is already used
      */
     async create(name, cidr, resourcetype = "vpc") {
-        if (await this.exists(name)) {
-            throw new VpcNameNotAvailableException();
-        }
+        if (await this.exists(name)) throw new VpcNameNotAvailableException();
+
         const params = {
             CidrBlock: cidr,
             EnableDnsHostnames: true,
@@ -58,7 +57,6 @@ module.exports = class VpcHelper {
             ]
         };
         await this.#client.send(new CreateVpcCommand(params));
-
     }
 
     /**
@@ -71,14 +69,13 @@ module.exports = class VpcHelper {
     async delete(name) {
         if (await this.exists(name) === false) throw new VpcNotFoundException();
         if (await this.isAttached(name) === true) throw new VpcNotDeletableException();
+
         let vpcId = await this.findId(name),
             params = {
                 VpcId: vpcId
             }
 
         await this.#client.send(new DeleteVpcCommand(params));
-
-
     }
 
     /**
