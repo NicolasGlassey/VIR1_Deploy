@@ -49,7 +49,7 @@ module.exports = class VpcHelper {
                 }
             ]
         };
-        return await this.#client.send(new CreateVpcCommand(params));
+        await this.#client.send(new CreateVpcCommand(params));
 
     }
 
