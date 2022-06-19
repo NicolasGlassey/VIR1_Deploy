@@ -117,7 +117,7 @@ test('create_VpcDoesNotExist_ThrowException', async() => {
     // Exception is thrown
 })
   
-test('delete_Deasassociated_Success', async() => {
+test('delete_Disassociate_Success', async() => {
     // given
     // refer to beforeEach and beforeAll methods
 
