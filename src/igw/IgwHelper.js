@@ -132,7 +132,6 @@ module.exports = class IgwHelper {
     * @param {string} name 
     * @param {string} resourceType 
     * @exception IgwNameNotAvailable is thrown when the name is already in use
-    * @returns id of the created igw or null
     */
     async create(name, resourceType = "internet-gateway"){
       if(await this.exists(name)) throw new IgwNameNotAvailableException();
