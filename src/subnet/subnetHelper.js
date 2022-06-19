@@ -11,9 +11,17 @@ const SubnetNameNotAvailableException = require("./SubnetNameNotAvailableExcepti
 const VpcHelper = require("../vpc/VpcHelper");
 
 module.exports = class SubnetHelper {
-    #client;
-    #vpcHelper;
 
+    //region private attributes
+    #client; 
+    #vpcHelper;
+    //endregion private attributes
+
+
+    /**
+     * @constructor
+     * @param {string} region
+     */
     constructor(region) {
         this.#client = new EC2Client({region: region});
         this.#vpcHelper = new VpcHelper(region);
@@ -21,6 +29,7 @@ module.exports = class SubnetHelper {
 
     /**
      * @brief This method checks if the subnet exists
+     * @async
      * @param {string} name - the name of the subnet
      * @returns a bool if subnet exists
      */
@@ -33,13 +42,13 @@ module.exports = class SubnetHelper {
                 }
             ]
         }
-        const describeSubnetsCommand = new DescribeSubnetsCommand(params);
-        const subnet = await this.#client.send(describeSubnetsCommand);
+        const subnet = await this.#client.send(new DescribeSubnetsCommand(params));
         return subnet.Subnets.length > 0;
     }
 
     /**
      * @brief This method find the id of a subnet
+     * @async
      * @param {string} name - the name of the subnet
      * @returns the id of the subnet
      */
@@ -52,14 +61,14 @@ module.exports = class SubnetHelper {
                 }
             ]
         }
-        const describeSubnetsCommand = new DescribeSubnetsCommand(params);
-        const subnet = await this.#client.send(describeSubnetsCommand);
+        const subnet = await this.#client.send(new DescribeSubnetsCommand(params));
         if (subnet.Subnets.length === 0) return null;
         return subnet.Subnets[0].SubnetId;
     }
 
     /**
      * @brief This method creates a subnet in aws asynchronously
+     * @async
      * @param {string} name - the name of the subnet
      * @param {string} vpcName - the name of the vpc
      * @param {string} cidr - the cidr block of the subnet
@@ -93,16 +102,17 @@ module.exports = class SubnetHelper {
 
     /**
      * @brief This method delete a subnet in aws asynchronously
+     * @async
      * @param {string} name - the name of the subnet
      * @exception SubnetNotFoundException if the subnet is not found
      */
     async delete(name) {
-        let id = await this.findId(name);
-        if (id === null) throw new SubnetNotFoundException();
-        
-        return this.#client.send(new DeleteSubnetCommand({
+        let id = await this.findId(name),
+            params = {
                 SubnetId: id
             }
-        ));
+        if (id === null) throw new SubnetNotFoundException();
+        
+        await this.#client.send(new DeleteSubnetCommand(params));
     }
 }
