@@ -1,5 +1,5 @@
 /**
- * @file     subnetHelper.js
+ * @file     SubnetHelper.js
  * @brief    This class is designed to manage an aws Subnet
  * @author   Mathieu Rabot
  * @version  13-06-2022 - original (dedicated to VIR1)
@@ -77,26 +77,26 @@ module.exports = class SubnetHelper {
      * @exception SubnetNameNotAvailableException if the subnet name is not available
      */
     async create(name, vpcName, cidr, availabilityZone, resourceType = "subnet") {
-        if (await this.exists(name)) {
-            throw new SubnetNameNotAvailableException();
-        }
-        const vpcId = await this.#vpcHelper.findId(vpcName);
-        const params = {
-            CidrBlock: cidr,
-            VpcId: vpcId,
-            AvailabilityZone: availabilityZone,
-            TagSpecifications: [
-                {
-                    ResourceType: resourceType,
-                    Tags: [
+        if (await this.exists(name)) throw new SubnetNameNotAvailableException();
+
+        const vpcId = await this.#vpcHelper.findId(vpcName),
+              params = {
+                    CidrBlock: cidr,
+                    VpcId: vpcId,
+                    AvailabilityZone: availabilityZone,
+                    TagSpecifications: [
                         {
-                            Key: "Name",
-                            Value: name
+                            ResourceType: resourceType,
+                            Tags: [
+                                {
+                                    Key: "Name",
+                                    Value: name
+                                }
+                            ]
                         }
                     ]
                 }
-            ]
-        }
+                
         await this.#client.send(new CreateSubnetCommand(params));
     }
 
