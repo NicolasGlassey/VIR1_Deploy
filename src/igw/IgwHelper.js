@@ -21,12 +21,15 @@ const attached = "attached",
       detached = "detached";
 module.exports = class IgwHelper {
 
-
     //region private attributes
     #client; 
     #vpcHelper;
     //endregion private attributes
 
+    /**
+     * @constructor
+     * @param {string} region
+     */
     constructor(region) {
       this.#client = new EC2Client({ region: region });
       this.#vpcHelper = new VpcHelper("eu-west-3");
@@ -34,6 +37,7 @@ module.exports = class IgwHelper {
     
     /**
     * @brief This method attach an igw and a vpc with the given names in the constructor
+    
     * @param {string} igwName
     * @param {string} vpcName
     * @exception IgwAttachmentException is thrown when the igw ot the vpc are already attached
@@ -48,13 +52,12 @@ module.exports = class IgwHelper {
                 //TODO à voir en review
                 if (await this.state(igwName) === detached || !(await this.#vpcHelper.isAttached(vpcName))) {
 
-                    const command = new AttachInternetGatewayCommand(
-                        {
-                            InternetGatewayId: igw.InternetGatewayId,
-                            VpcId: vpcId
-                        }
-                    )
-                    const response = await this.#client.send(command)
+                  await this.#client.send(new AttachInternetGatewayCommand(
+                    {
+                        InternetGatewayId: igw.InternetGatewayId,
+                        VpcId: vpcId
+                    }
+                  ));
                 } else {
                     throw new IgwAttachmentException()
                 }
@@ -68,6 +71,7 @@ module.exports = class IgwHelper {
 
     /**
     * @brief This method detach an igw with the given name in the constructor
+    * @async
     * @param {string} igwName
     * @exception IgwNotAttachedException is thrown when the igw isn't attached
     * @exception IgwNotFoundException is thrown when the igw isn't exist
@@ -76,13 +80,12 @@ module.exports = class IgwHelper {
         if(await this.exists(igwName)){
             let igw = await this.find(igwName)
             if(await this.state(igwName) === attached){
-                let command = new DetachInternetGatewayCommand(
+              await this.#client.send(new DetachInternetGatewayCommand(
                     {
                         InternetGatewayId: igw.InternetGatewayId,
                         VpcId: igw.Attachments[0].VpcId
                     }
-                )
-                let response = await this.#client.send(command)
+              ));
             }else{
                 throw new IgwNotAttachedException()
             }
@@ -94,6 +97,7 @@ module.exports = class IgwHelper {
 
     /**
     * @brief This method check the attachment state for the igw with the given name in the constructor
+    * @async
     * @param {string} igwName 
     * @returns state of igw attachement
     */
@@ -107,6 +111,7 @@ module.exports = class IgwHelper {
 
        /**
     * @brief This method find an igw with the given name in the constructor
+    * @async
     * @param {string} igwName 
     * @returns the igw finded
     */
@@ -129,6 +134,7 @@ module.exports = class IgwHelper {
 
    /**
     * @brief This method creates an igw with the given name in the constructor
+    * @async
     * @param {string} name 
     * @param {string} resourceType 
     * @exception IgwNameNotAvailable is thrown when the name is already in use
@@ -155,6 +161,7 @@ module.exports = class IgwHelper {
 
    /**
     * @brief This method deletes an internet gateway by its name
+    * @async
     * @exception IgwNotFoundException is thrown when attempts to delete non-existent Igw 
     * @param {string} name 
     */
@@ -164,19 +171,18 @@ module.exports = class IgwHelper {
         if(await this.state(name) === attached) await this.detach(name)
       }
 
-      let id = await this.findId(name);
+      let id = await this.findId(name),
+          params = {
+            InternetGatewayId: id
+          };
       if(id === null) throw new IgwNotFoundException();
 
-      var params = {
-        InternetGatewayId:id
-      };
-
-      const command = new DeleteInternetGatewayCommand(params);
-      await this.#client.send(command); 
+      await this.#client.send(new DeleteInternetGatewayCommand(params));
     }
 
    /**
     * @brief This method checks if an Igw already exists with the given name
+    * @async
     * @param {String} name 
     * @returns true if name is available
     */
@@ -186,6 +192,7 @@ module.exports = class IgwHelper {
 
    /**
     * @brief This method returns the id of the internet gatway by its name
+    * @async
     * @param {string} name 
     * @returns null if nothing matches or the id 
     */
@@ -198,15 +205,16 @@ module.exports = class IgwHelper {
           },
         ],
       };
-      const command = new DescribeInternetGatewaysCommand(params);
-      const igw = await this.#client.send(command);
+
+      const igw = await this.#client.send(new DescribeInternetGatewaysCommand(params));
       if(igw.InternetGateways.length === 0) return null;
         
       return igw.InternetGateways[0].InternetGatewayId;
     }
 
-   /**
+    /**
     * @brief This method get all existing internet gateway.
+    * @async
     * @param {string} resourceType 
     * @returns list of internet gateway
     */
@@ -220,8 +228,7 @@ module.exports = class IgwHelper {
           },
         ],
       };
-      const command = new DescribeInternetGatewaysCommand(params);
-      const response = await this.#client.send(command);
+      const response = await this.#client.send(new DescribeInternetGatewaysCommand(params));
       return response.InternetGateways;
     }
  }
