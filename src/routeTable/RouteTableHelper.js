@@ -15,15 +15,15 @@ const {
     DisassociateRouteTableCommand
 } = require("@aws-sdk/client-ec2");
 
-const vpcHelper = require("../vpc/VpcHelper")
-const VpcNotFoundException = require("../vpc/VpcNotFoundException.js");
+const VpcHelper = require("../vpc/VpcHelper")
+const VpcNotFoundException = require("../vpc/VpcNotFoundException");
 const subnetHelper = require("../subnet/subnetHelper")
 
-const SubnetNotFoundException = require("../subnet/SubnetNotFoundException.js");
+const SubnetNotFoundException = require("../subnet/SubnetNotFoundException")
 
+const RouteTableAssociationNotFoundException = require("./RouteTableAssociationNotFoundException");
 const RouteTableAlreadyExistsException = require("./RouteTableAlreadyExistsException");
 const RouteTableNotFoundException = require("./RouteTableNotFoundException");
-const VpcHelper = require("../vpc/VpcHelper");
 
 module.exports = class RouteTable {
 
@@ -71,22 +71,18 @@ module.exports = class RouteTable {
      * @param {string} routeTableName
      * @param {string} subnetName
      * @exception RouteTableNotFoundException if routeTable doesn't exist
-     * @exception SubnetNotFoundException if subnet doesn't exist
+     * @exception RouteTableAssociationNotFoundException if association doesn't exist
      */
-    async disassociate(routeTableName, subnetName) {
-        let routeTableId = await this.findId(routeTableName);
-        let subnetId = await this.#subnetHelper.findId(subnetName);
+    async disassociate(routeTableName) {
+        if (!await this.exists(routeTableName)) throw new RouteTableNotFoundException();
 
-        if (routeTableId === null) throw new RouteTableNotFoundException();
-        if (subnetId === null) throw new SubnetNotFoundException();
+        let RouteTableAssociationId = await this.findAssociationId(routeTableName);
+        if (RouteTableAssociationId === null) throw new RouteTableAssociationNotFoundException();
 
         var params = {
-            RouteTableId: routeTableId,
-            AssociationId: subnetId
+            AssociationId: RouteTableAssociationId
         };
-        const command = new DisassociateRouteTableCommand(params);
-        const response = await this.#client.send(command);
-
+        await this.#client.send(new DisassociateRouteTableCommand(params));
     }
 
     /**
@@ -103,7 +99,6 @@ module.exports = class RouteTable {
             RouteTableIds: [id]
         });
         const routeTable = await this.#client.send(command);
-        console.log(routeTable.RouteTables[0].Associations);
         return routeTable.RouteTables[0].Associations.length > 0;
     }
 
@@ -114,10 +109,12 @@ module.exports = class RouteTable {
      * @param {string} vpcName
      * @param {string} resourceType
      * @exception VpcNotFoundException if vpc doesn't exist
+     * @exception RouteTableAlreadyExistsException if vpc already exist
      */
     async create(routeTableName, vpcName, resourceType = "route-table") {
         let vpcId = await this.#vpcHelper.findId(vpcName);
         if (vpcId === null) throw new VpcNotFoundException();
+        if(await this.exists(routeTableName)) throw new RouteTableAlreadyExistsException();
 
         var params = {
             VpcId: vpcId,
@@ -182,5 +179,25 @@ module.exports = class RouteTable {
         const routeTable = await this.#client.send(command);
         if (routeTable.RouteTables.length === 0) return null;
         return routeTable.RouteTables[0].RouteTableId;
+    }
+
+    /**
+     * @brief Find a associationId by its name
+     * @param {string} name
+     * @returns associationId or null
+     */
+     async findAssociationId(name) {
+        var params = {
+            Filters: [
+                {
+                    Name: "tag:Name",
+                    Values: [name,],
+                },
+            ],
+        };
+        const command = new DescribeRouteTablesCommand(params);
+        const routeTable = await this.#client.send(command);
+        if (routeTable.RouteTables.length === 0) return null;
+        return routeTable.RouteTables[0].Associations[0].RouteTableAssociationId;
     }
 }
