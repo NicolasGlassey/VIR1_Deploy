@@ -62,7 +62,7 @@ test('findId_NonExistentRouteTable_Success', async() => {
     // nothing is created
 
     // then
-    expect(await routeTableHelper.findId(notUsedName)).toEqual(null);
+    expect(await routeTableHelper.findId(notExistRouteTable)).toEqual(null);
 })
 
 test('exists_NominalCase_Success', async() => {
@@ -74,17 +74,6 @@ test('exists_NominalCase_Success', async() => {
 
     // then
     expect(await routeTableHelper.exists(routeTableName)).toEqual(true)
-})
-
-test('findId_NonExistentRouteTable_Success', async() => {
-    // given
-    let notUsedName = "NonExistentRouteTable";
-
-    // when
-    // nothing is created
-
-    // then
-    expect(await routeTableHelper.exists(notUsedName)).toEqual(false);
 })
 
 test('create_NominalCase_Success', async() => {
