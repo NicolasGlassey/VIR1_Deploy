@@ -22,6 +22,7 @@ The goal of the project is the deployment of vpc (virtual private cloud).
 -  npm 8.5.5 
 -  node 18.2.0 
 -  aws-cli 1.23.11
+-  JSDoc 3.6.10
 
 ### Installing 
 
