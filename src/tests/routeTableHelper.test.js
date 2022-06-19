@@ -37,13 +37,11 @@ beforeAll(() => {
 });
 
 beforeEach(async()=>{
-    if(await routeTableHelper.isAssociated(routeTableName) === true) await routeTableHelper.deasassociate(routeTableName, subnetName)
     if(await vpcHelper.exists(vpcName) === false) await vpcHelper.create(vpcName, vpcCidr);
     if(await routeTableHelper.exists(routeTableName) === false) await routeTableHelper.create(routeTableName, vpcName);
 })
 
 afterEach(async () => {
-    if(await routeTableHelper.isAssociated(routeTableName) === true) await routeTableHelper.deasassociate(routeTableName, subnetName)
     if(await subnetHelper.exists(subnetName)) await subnetHelper.delete(subnetName);
     if(await routeTableHelper.exists(routeTableName) === true) await routeTableHelper.delete(routeTableName);
     if(await vpcHelper.exists(vpcName) === true) await vpcHelper.delete(vpcName);
