@@ -18,25 +18,31 @@ let vpcCidr;
 let subnetCidr;
 let availabilityZone;
 
-beforeEach(() => {
+beforeAll(() => {
     vpcHelper = new VpcHelper("eu-west-3");
     subnetHelper = new SubnetHelper("eu-west-3");
-    subnetName = "Subnet_TEST_Deploy";
-    vpcName = "VPC_TEST_Deploy";
-    vpcCidr = "10.0.0.0/16";
+
+    subnetName = "Subnet_Deploy_Test";
     subnetCidr = "10.0.0.0/24";
     availabilityZone = "eu-west-3a";
+
+    vpcName = "VPC_Deploy_Test";
+    vpcCidr = "10.0.0.0/16";
+})
+
+beforeEach(() => {
+    if( !await vpcHelper.exists(vpcName))
+    {
+        await vpcHelper.create(vpcName, vpcCidr);
+    }
 })
 
 test("exists_Found_Success", async () => {
     // given
-
-    if( !await vpcHelper.exists(vpcName) && !await subnetHelper.exists(subnetName))
-    {
-        await vpcHelper.create(vpcName, vpcCidr);
-        await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
-    }
+    // refer to before each method    
+    
     // when
+    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
 
     // then
     expect(await subnetHelper.exists(subnetName)).toEqual(true);
@@ -54,9 +60,8 @@ test("exists_NotFound_Success", async () => {
 
 test("create_NominalCase_Success", async () => {
     // given
-    if(!await vpcHelper.exists(vpcName)){
-        await vpcHelper.create(vpcName, vpcCidr);
-    }
+    // refer to before each method
+
     // when
     await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
 
@@ -66,10 +71,8 @@ test("create_NominalCase_Success", async () => {
 
 test("create_NameNotAvailable_ThrowException", async () => {
     // given
-    if(!await vpcHelper.exists(vpcName) && !await subnetHelper.exists(subnetName)) {
-        await vpcHelper.create(vpcName, vpcCidr);
-        await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
-    }
+    // refer to before each method
+    await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
 
     // when
     await expect(subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone)).rejects.toThrow(SubnetNameNotAvailableException);
@@ -84,10 +87,10 @@ test("create_NameNotAvailable_ThrowException", async () => {
  */
 test("delete_NotFound_ThrowException", async () => {
     // given
-    let NonExistentSubnet = "non-existant";
+    let notExistSubnet = "not-exists";
 
     // when
-    await expect(subnetHelper.delete(NonExistentSubnet)).rejects.toThrow(SubnetNotFoundException);
+    await expect(subnetHelper.delete(notExistSubnet)).rejects.toThrow(SubnetNotFoundException);
 
     // then
     // Exception thrown
@@ -98,7 +101,7 @@ test("delete_NotFound_ThrowException", async () => {
  */
 test("delete_NominalCase_Success", async () => {
     // given
-    await vpcHelper.create(vpcName, vpcCidr);
+    // refer to before each method
     await subnetHelper.create(subnetName, vpcName, subnetCidr, availabilityZone);
 
     // when
